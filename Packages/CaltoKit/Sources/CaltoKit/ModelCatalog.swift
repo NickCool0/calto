@@ -26,6 +26,15 @@ public enum ProviderError: Error, Equatable, Sendable {
     case insecureConnection
     case invalidResponse
     case unsupported
+    /// HTTP 400 with the provider's explanation (wrong model name, unsupported parameter…).
+    case badRequest(String?)
+    case imagesNotSupported
+    /// The provider declined to answer (safety filters).
+    case refused(String?)
+    /// The answer was cut off by the output limit.
+    case truncated
+    /// The model answered, but not with the expected JSON.
+    case malformedOutput
 }
 
 /// Lists the models a provider offers. Doubles as an API key check: a key that can list models works.
@@ -64,7 +73,7 @@ public enum ModelCatalog {
         case .gemini:
             request = URLRequest(url: base.appending(path: "models").appending(queryItems: [URLQueryItem(name: "pageSize", value: "1000")]))
             request.setValue(key, forHTTPHeaderField: "x-goog-api-key")
-        case .appleOnDevice:
+        case .appleOnDevice, .mock:
             throw .unsupported
         }
         request.httpMethod = "GET"
@@ -81,6 +90,8 @@ public enum ModelCatalog {
         case 400 where provider == .gemini && isGeminiKeyError(body):
             // Gemini reports a bad key as 400 INVALID_ARGUMENT, not 401.
             throw .invalidAPIKey
+        case 400, 422:
+            throw .badRequest(errorMessage(in: body))
         case 401:
             throw .invalidAPIKey
         case 403:
@@ -120,7 +131,7 @@ public enum ModelCatalog {
                         let id = model.name.hasPrefix("models/") ? String(model.name.dropFirst("models/".count)) : model.name
                         return ModelInfo(id: id, displayName: model.displayName)
                     }
-            case .appleOnDevice:
+            case .appleOnDevice, .mock:
                 throw ProviderError.unsupported
             }
         } catch let error as ProviderError {
@@ -147,6 +158,16 @@ public enum ModelCatalog {
         default:
             .cannotConnect(host: url?.host())
         }
+    }
+
+    /// The human-readable message in an error body: `{"error": {"message": …}}` (OpenAI, Anthropic,
+    /// Gemini), `{"error": "…"}` (Ollama) or `{"message": …}`.
+    public static func errorMessage(in body: Data) -> String? {
+        guard let json = try? JSONDecoder().decode(JSONValue.self, from: body) else {
+            let text = String(decoding: body.prefix(300), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+            return text.isEmpty ? nil : text
+        }
+        return json["error"]?["message"]?.stringValue ?? json["error"]?.stringValue ?? json["message"]?.stringValue
     }
 
     static func isGeminiKeyError(_ body: Data) -> Bool {

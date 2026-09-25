@@ -55,16 +55,18 @@ def rounded_rect(x, y, rect):
     return outside + min(max(qx, qy), 0) - r
 
 
-def sparkle(x, y, star):
-    """Four-point star |x|^½ + |y|^½ = r^½; distance approximated as f / |∇f|."""
+def sparkle(x, y, star, power=0.5):
+    """Four-point star |x/r|^p + |y/r|^p = 1 (p < 1 makes concave arms; smaller p, thinner arms).
+    Distance is approximated as f / |grad f| inside the bounding box and by the nearest tip outside."""
     cx, cy, r = star
     dx, dy = abs(x - cx), abs(y - cy)
     if dx >= r or dy >= r:
-        # Beyond the tips; the gradient estimate below degenerates along the axes.
-        return math.hypot(max(dx - r, 0), max(dy - r, 0)) + 1
-    dx, dy = dx + 0.5, dy + 0.5
-    f = math.sqrt(dx / r) + math.sqrt(dy / r) - 1
-    gx, gy = 0.5 / math.sqrt(dx * r), 0.5 / math.sqrt(dy * r)
+        # Outside the bounding box the closest part of the star is one of its tips.
+        return min(math.hypot(dx - r, dy), math.hypot(dx, dy - r))
+    dx, dy = max(dx, 0.05 * r), max(dy, 0.05 * r)
+    u, v = dx / r, dy / r
+    f = u ** power + v ** power - 1
+    gx, gy = power / r * u ** (power - 1), power / r * v ** (power - 1)
     return f / math.hypot(gx, gy)
 
 
@@ -142,7 +144,59 @@ def png(size, raw):
     return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header) + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b"")
 
 
+# Menu bar icon: a template (black + alpha) glyph on an 18 pt canvas; the system tints it.
+MENU_OUTPUT = ROOT / "calto/Resources/Assets.xcassets/MenuBarIcon.imageset"
+MENU_PAGE = (2.0, 4.0, 14.5, 16.0, 2.6)
+MENU_STROKE = 1.35
+MENU_HEADER_BOTTOM = 7.4
+MENU_RINGS = [(5.0, 2.2, 6.4, 5.6, 0.7), (10.1, 2.2, 11.5, 5.6, 0.7)]
+MENU_SPARKLE = (13.6, 12.9, 5.4)
+MENU_SPARKLE_POWER = 0.55
+MENU_CLEARANCE = 1.1
+
+
+def menu_alpha(x, y, pixel):
+    page = rounded_rect(x, y, MENU_PAGE)
+    outline = coverage(abs(page + MENU_STROKE / 2) - MENU_STROKE / 2, pixel)
+    header = coverage(max(page, y - MENU_HEADER_BOTTOM), pixel)
+    glyph = max(outline, header, *(coverage(rounded_rect(x, y, ring), pixel) for ring in MENU_RINGS))
+    star = sparkle(x, y, MENU_SPARKLE, MENU_SPARKLE_POWER)
+    # Cut a gap around the sparkle so it reads as a separate shape.
+    glyph *= 1 - coverage(star - MENU_CLEARANCE, pixel)
+    return max(glyph, coverage(star, pixel))
+
+
+def render_menu_icon(size):
+    pixel = 18 / size
+    rows = []
+    for py in range(size):
+        row = bytearray([0])
+        y = (py + 0.5) * pixel
+        for px in range(size):
+            a = menu_alpha((px + 0.5) * pixel, y, pixel)
+            row += bytes((0, 0, 0, round(a * 255)))
+        rows.append(bytes(row))
+    return b"".join(rows)
+
+
+def write_menu_icon():
+    MENU_OUTPUT.mkdir(parents=True, exist_ok=True)
+    images = []
+    for scale in (1, 2):
+        name = f"menubar_{scale}x.png"
+        (MENU_OUTPUT / name).write_bytes(png(18 * scale, render_menu_icon(18 * scale)))
+        images.append({"filename": name, "idiom": "mac", "scale": f"{scale}x"})
+        print(f"rendered {name}")
+    contents = {
+        "images": images,
+        "info": {"author": "xcode", "version": 1},
+        "properties": {"template-rendering-intent": "template"},
+    }
+    (MENU_OUTPUT / "Contents.json").write_text(json.dumps(contents, indent=2) + "\n")
+
+
 def main():
+    write_menu_icon()
     OUTPUT.mkdir(parents=True, exist_ok=True)
     rendered = {}
     images = []

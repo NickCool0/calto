@@ -8,13 +8,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKey: GlobalHotKey?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let inputPanel = InputPanelController(context: context)
+        let popover = PopoverController(context: context)
         let hotKey = GlobalHotKey(combo: .default) {
-            inputPanel.toggle()
+            popover.toggle()
         }
-        let statusItem = StatusItemController(context: context, inputPanel: inputPanel, hotKey: hotKey)
-        inputPanel.anchor = { [weak statusItem] in
-            statusItem?.buttonFrameOnScreen
+        let statusItem = StatusItemController(context: context, popover: popover, hotKey: hotKey)
+        popover.anchorButton = { [weak statusItem] in
+            statusItem?.button
         }
         self.hotKey = hotKey
         statusItemController = statusItem

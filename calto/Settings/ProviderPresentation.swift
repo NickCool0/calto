@@ -10,6 +10,7 @@ extension LLMProvider {
         case .gemini: "Google Gemini"
         case .openAICompatible: String(localized: "OpenAI-compatible (Ollama, LM Studio, OpenRouter…)")
         case .appleOnDevice: String(localized: "Apple Intelligence (on device)")
+        case .mock: String(localized: "Mock (development)")
         }
     }
 
@@ -20,12 +21,13 @@ extension LLMProvider {
         case .gemini: "Gemini"
         case .openAICompatible: String(localized: "Local / compatible")
         case .appleOnDevice: String(localized: "On device")
+        case .mock: "Mock"
         }
     }
 }
 
 extension ProviderError {
-    var message: String {
+    nonisolated var message: String {
         switch self {
         case .missingAPIKey:
             String(localized: "Enter an API key first.")
@@ -57,6 +59,20 @@ extension ProviderError {
             String(localized: "The server’s response is not a model list. Check the server address.")
         case .unsupported:
             String(localized: "This provider doesn’t offer a model list.")
+        case .badRequest(let detail?):
+            String(localized: "The provider rejected the request: \(detail)")
+        case .badRequest(nil):
+            String(localized: "The provider rejected the request. Check the model name in Settings.")
+        case .imagesNotSupported:
+            String(localized: "This model can’t read images.")
+        case .refused(let reason?):
+            String(localized: "The model declined to answer (\(reason)).")
+        case .refused(nil):
+            String(localized: "The model declined to answer.")
+        case .truncated:
+            String(localized: "The answer was cut off. Try less text or fewer images at once.")
+        case .malformedOutput:
+            String(localized: "The model’s answer couldn’t be read. Try again or choose another model.")
         }
     }
 }

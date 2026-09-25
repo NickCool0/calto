@@ -4,6 +4,7 @@ import SwiftUI
 
 struct GeneralSettingsPane: View {
     let context: AppContext
+    @Bindable var settings: AppSettings
 
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var loginItemNeedsApproval = SMAppService.mainApp.status == .requiresApproval
@@ -37,6 +38,39 @@ struct GeneralSettingsPane: View {
                         Text(verbatim: "\(calendarAccess.accounts.reduce(0) { $0 + $1.calendars.count })")
                     }
                 }
+            }
+
+            Section("New events") {
+                Picker("Calendar", selection: $settings.defaultCalendarID) {
+                    Text("Calendar app’s default").tag(String?.none)
+                    ForEach(calendarAccess.accounts) { account in
+                        Section(account.title) {
+                            ForEach(account.calendars) { calendar in
+                                Label {
+                                    Text(calendar.title)
+                                } icon: {
+                                    Image(nsImage: CalendarSwatch.image(for: calendar.color))
+                                }
+                                .tag(String?.some(calendar.id))
+                            }
+                        }
+                    }
+                }
+                Picker("Reminder", selection: $settings.defaultReminderMinutes) {
+                    Text("None").tag(Int?.none)
+                    ForEach([0, 5, 10, 15, 30, 60, 120, 1440], id: \.self) { minutes in
+                        Text(AlarmText.describe(EventAlarm(minutesBefore: minutes))).tag(Int?.some(minutes))
+                    }
+                }
+                Picker("Duration when no end is given", selection: $settings.defaultDurationMinutes) {
+                    ForEach([15, 30, 45, 60, 90, 120, 180], id: \.self) { minutes in
+                        Text(Duration.seconds(Int64(minutes) * 60).formatted(.units(allowed: [.hours, .minutes], width: .wide)))
+                            .tag(minutes)
+                    }
+                }
+                Text("Used when the text doesn’t mention them. You can change everything before adding events.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Shortcut") {
