@@ -1,26 +1,44 @@
 import AppKit
 import CaltoKit
 
-/// Owns the menu bar icon and its menu. The menu is rebuilt every time it opens,
-/// so it always reflects the current calendar access state.
+/// Owns the menu bar icon. A left click opens the input window; a right click (or ⌃-click)
+/// shows the menu, which is rebuilt every time so it reflects the current state.
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    private let menu = NSMenu()
     private let calendarAccess: CalendarAccess
     private let inputPanel: InputPanelController
+    private let hotKey: GlobalHotKey
 
-    init(calendarAccess: CalendarAccess, inputPanel: InputPanelController) {
+    init(calendarAccess: CalendarAccess, inputPanel: InputPanelController, hotKey: GlobalHotKey) {
         self.calendarAccess = calendarAccess
         self.inputPanel = inputPanel
+        self.hotKey = hotKey
         super.init()
 
         let icon = NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: "calto")
         icon?.isTemplate = true
-        statusItem.button?.image = icon
+        if let button = statusItem.button {
+            button.image = icon
+            button.target = self
+            button.action = #selector(statusItemClicked)
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        }
 
-        let menu = NSMenu()
         menu.autoenablesItems = false
         menu.delegate = self
-        statusItem.menu = menu
+    }
+
+    @objc private func statusItemClicked() {
+        guard let event = NSApp.currentEvent else { return }
+        if event.type == .rightMouseUp || event.modifierFlags.contains(.control) {
+            // Attach the menu only for this click so a left click keeps opening the input window.
+            statusItem.menu = menu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+        } else {
+            inputPanel.show()
+        }
     }
 
     // MARK: NSMenuDelegate
@@ -28,7 +46,15 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
 
-        menu.addItem(actionItem(String(localized: "Open calto…"), action: #selector(openInput)))
+        let openItem = actionItem(String(localized: "Open calto…"), action: #selector(openInput))
+        if hotKey.registrationError == nil, let key = hotKey.combo.keyCharacter {
+            openItem.keyEquivalent = key
+            openItem.keyEquivalentModifierMask = modifierFlags(hotKey.combo.modifiers)
+        }
+        menu.addItem(openItem)
+        if hotKey.registrationError != nil {
+            menu.addItem(infoItem(String(localized: "Shortcut \(hotKey.combo.displayString) is taken by another app")))
+        }
         menu.addItem(.separator())
         addCalendarItems(to: menu)
         menu.addItem(.separator())
@@ -92,6 +118,15 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         item.isEnabled = false
         return item
+    }
+
+    private func modifierFlags(_ modifiers: HotKeyCombo.Modifiers) -> NSEvent.ModifierFlags {
+        var flags: NSEvent.ModifierFlags = []
+        if modifiers.contains(.control) { flags.insert(.control) }
+        if modifiers.contains(.option) { flags.insert(.option) }
+        if modifiers.contains(.shift) { flags.insert(.shift) }
+        if modifiers.contains(.command) { flags.insert(.command) }
+        return flags
     }
 
     private func swatch(for color: NSColor) -> NSImage? {

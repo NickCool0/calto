@@ -61,6 +61,16 @@
         }
       }
     },
+    "Clear": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить"
+          }
+        }
+      }
+    },
     "Could not request calendar access: %@": {
       "localizations": {
         "ru": {
@@ -81,12 +91,12 @@
         }
       }
     },
-    "Input arrives in the next stage.": {
+    "Instruction": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ввод появится на следующем этапе."
+            "value": "Инструкция"
           }
         }
       }
@@ -97,6 +107,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нет календарей, доступных для записи"
+          }
+        }
+      }
+    },
+    "Only images and text can be added.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Можно добавлять только изображения и текст."
           }
         }
       }
@@ -121,12 +141,32 @@
         }
       }
     },
-    "Paste a screenshot or text": {
+    "Optional instruction, e.g. “only meetings with Anna”, “remind me an hour before”": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вставьте скриншот или текст"
+            "value": "Инструкция (необязательно), например «только встречи с Аней», «напомни за час»"
+          }
+        }
+      }
+    },
+    "Paste a screenshot (⌘V) or drop images here": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте скриншот (⌘V) или перетащите изображения сюда"
+          }
+        }
+      }
+    },
+    "Paste or drop a screenshot, or type some text first.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сначала вставьте или перетащите скриншот либо введите текст."
           }
         }
       }
@@ -141,12 +181,112 @@
         }
       }
     },
+    "Ready to recognize: images — %lld, characters — %lld. Recognition arrives in the next stage.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово к распознаванию: изображений — %lld, символов — %lld. Распознавание появится на следующем этапе."
+          }
+        }
+      }
+    },
+    "Recognize": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознать"
+          }
+        }
+      }
+    },
+    "Remove image": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить изображение"
+          }
+        }
+      }
+    },
     "Settings will appear in a later stage.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Настройки появятся на одном из следующих этапов."
+          }
+        }
+      }
+    },
+    "Shortcut %@ is taken by another app": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сочетание %@ занято другим приложением"
+          }
+        }
+      }
+    },
+    "The clipboard is empty.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Буфер обмена пуст."
+          }
+        }
+      }
+    },
+    "The text is too long (maximum %lld characters).": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст слишком длинный (максимум %lld символов)."
+          }
+        }
+      }
+    },
+    "This image can’t be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удаётся прочитать изображение."
+          }
+        }
+      }
+    },
+    "You can add up to %lld images.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Можно добавить не больше %lld изображений."
+          }
+        }
+      }
+    },
+    "calto can’t read “%@”. Drag the file into the window instead.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calto не может прочитать «%@». Перетащите файл в окно."
+          }
+        }
+      }
+    },
+    "…or paste or type the text of an invitation, chat or schedule": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "…или вставьте либо введите текст приглашения, переписки или расписания"
           }
         }
       }

@@ -5,6 +5,12 @@ on:
     branches: ["**"]
     tags: ["v*"]
   pull_request:
+  # Manual release from the Actions tab: builds the selected branch and publishes tag v<version>.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 0.2.0"
+        required: true
 
 permissions:
   contents: read
@@ -33,12 +39,20 @@ jobs:
 
       - name: Metadata
         id: meta
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
           # Fresh DerivedData in the runner's temp dir: every build starts from scratch.
           echo "DERIVED_DATA=$RUNNER_TEMP/DerivedData" >> "$GITHUB_ENV"
-          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            echo "label=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
-            echo "version_override=MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            version="$INPUT_VERSION"
+          elif [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          if [[ -n "${version:-}" ]]; then
+            [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::Invalid version '$version'"; exit 1; }
+            echo "label=v$version" >> "$GITHUB_OUTPUT"
+            echo "version_override=MARKETING_VERSION=${version%%-*}" >> "$GITHUB_OUTPUT"
           else
             echo "label=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
           fi
@@ -78,7 +92,7 @@ jobs:
   release:
     name: GitHub Release
     needs: build
-    if: github.ref_type == 'tag'
+    if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -92,17 +106,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build.outputs.label }}
         run: |
           notes="$(cat <<'EOF'
           ## Install
 
-          1. Download `calto-${{ github.ref_name }}.zip`, unzip, move `calto.app` to `/Applications`.
+          1. Download the `.zip` below, unzip, move `calto.app` to `/Applications`.
           2. The build is ad-hoc signed (not notarized), so allow it once: open it, then **System Settings → Privacy & Security → Open Anyway**
              — or run `xattr -dr com.apple.quarantine /Applications/calto.app`.
 
           Requires macOS 27 on Apple silicon.
           EOF
           )"
-          flags=(--title "calto ${GITHUB_REF_NAME}" --notes "$notes" --generate-notes --verify-tag)
-          [[ "$GITHUB_REF_NAME" == *-* ]] && flags+=(--prerelease)
-          gh release create "$GITHUB_REF_NAME" dist/*.zip "${flags[@]}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            # Release drafted in the GitHub UI: just attach the build.
+            gh release upload "$TAG" dist/*.zip --clobber
+            exit 0
+          fi
+          # On a tag push the tag exists; on a manual run gh creates it at the built commit.
+          flags=(--title "calto $TAG" --notes "$notes" --generate-notes --target "$GITHUB_SHA")
+          [[ "$TAG" == *-* ]] && flags+=(--prerelease)
+          gh release create "$TAG" dist/*.zip "${flags[@]}"
