@@ -1,0 +1,156 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ — 1 reminder per event": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — 1 напоминание на событие"
+          }
+        }
+      }
+    },
+    "Calendar access: add-only (full access required)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ к календарю: только добавление (нужен полный доступ)"
+          }
+        }
+      }
+    },
+    "Calendar access: denied": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ к календарю: запрещён"
+          }
+        }
+      }
+    },
+    "Calendar access: granted": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ к календарю: разрешён"
+          }
+        }
+      }
+    },
+    "Calendar access: not requested yet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ к календарю: ещё не запрошен"
+          }
+        }
+      }
+    },
+    "Calendars": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календари"
+          }
+        }
+      }
+    },
+    "Could not request calendar access: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось запросить доступ к календарю: %@"
+          }
+        }
+      }
+    },
+    "Grant Calendar Access…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешить доступ к календарю…"
+          }
+        }
+      }
+    },
+    "Input arrives in the next stage.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ввод появится на следующем этапе."
+          }
+        }
+      }
+    },
+    "No writable calendars": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет календарей, доступных для записи"
+          }
+        }
+      }
+    },
+    "Open Privacy Settings…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки конфиденциальности…"
+          }
+        }
+      }
+    },
+    "Open calto…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть calto…"
+          }
+        }
+      }
+    },
+    "Paste a screenshot or text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте скриншот или текст"
+          }
+        }
+      }
+    },
+    "Quit calto": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершить calto"
+          }
+        }
+      }
+    },
+    "Settings will appear in a later stage.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки появятся на одном из следующих этапов."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

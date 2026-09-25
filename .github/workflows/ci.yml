@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & test
+    runs-on: xcode-27
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+      DERIVED_DATA: ${{ runner.temp }}/DerivedData
+    outputs:
+      label: ${{ steps.meta.outputs.label }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Metadata
+        id: meta
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "label=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "version_override=MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "label=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test CaltoKit
+        run: swift test --package-path Packages/CaltoKit --scratch-path "$RUNNER_TEMP/CaltoKitBuild"
+
+      - name: Build app (Release, ad-hoc signed)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project calto.xcodeproj \
+            -scheme calto \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath "$DERIVED_DATA" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            ${{ steps.meta.outputs.version_override }} \
+            clean build
+
+      - name: Verify bundle
+        run: scripts/verify-bundle.sh "$DERIVED_DATA/Build/Products/Release/calto.app"
+
+      - name: Package
+        run: |
+          mkdir -p "$RUNNER_TEMP/dist"
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$DERIVED_DATA/Build/Products/Release/calto.app" \
+            "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: calto-${{ steps.meta.outputs.label }}
+          path: ${{ runner.temp }}/dist/*.zip
+          if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: calto-${{ needs.build.outputs.label }}
+          path: dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          notes="$(cat <<'EOF'
+          ## Install
+
+          1. Download `calto-${{ github.ref_name }}.zip`, unzip, move `calto.app` to `/Applications`.
+          2. The build is ad-hoc signed (not notarized), so allow it once: open it, then **System Settings → Privacy & Security → Open Anyway**
+             — or run `xattr -dr com.apple.quarantine /Applications/calto.app`.
+
+          Requires macOS 27 on Apple silicon.
+          EOF
+          )"
+          flags=(--title "calto ${GITHUB_REF_NAME}" --notes "$notes" --generate-notes --verify-tag)
+          [[ "$GITHUB_REF_NAME" == *-* ]] && flags+=(--prerelease)
+          gh release create "$GITHUB_REF_NAME" dist/*.zip "${flags[@]}"
