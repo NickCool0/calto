@@ -86,8 +86,8 @@ final class PopoverModel {
         stage = .waitingForModel
         task = Task {
             do {
-                let drafts = try await recognition.recognize(request, settings: settings) { [weak self] stage in
-                    guard let self, self.run == thisRun else { return }
+                let drafts = try await recognition.recognize(request, settings: settings) { stage in
+                    guard self.run == thisRun else { return }
                     self.stage = stage
                 }
                 try Task.checkCancellation()
