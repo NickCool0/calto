@@ -29,7 +29,7 @@ jobs:
     outputs:
       label: ${{ steps.meta.outputs.label }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Toolchain
         run: |
@@ -87,23 +87,24 @@ jobs:
             "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
           hdiutil verify "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
 
-      - uses: actions/upload-artifact@v4
+      # archive: false uploads the DMG as-is, so it downloads as a .dmg rather than a zip.
+      - uses: actions/upload-artifact@v7
         with:
-          name: calto-${{ steps.meta.outputs.label }}
-          path: ${{ runner.temp }}/dist/*.dmg
+          path: ${{ runner.temp }}/dist/calto-${{ steps.meta.outputs.label }}.dmg
+          archive: false
           if-no-files-found: error
 
   release:
     name: GitHub Release
     needs: build
     if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
-          name: calto-${{ needs.build.outputs.label }}
+          name: calto-${{ needs.build.outputs.label }}.dmg
           path: dist
 
       - name: Publish release
@@ -115,13 +116,15 @@ jobs:
           notes="$(cat <<'EOF'
           ## Install
 
-          1. Download the `.dmg` below, open it and drag **calto** into **Applications**.
+          1. Download `calto.dmg` below, open it and drag **calto** into **Applications**.
           2. The build is ad-hoc signed (not notarized), so allow it once: open calto, then **System Settings → Privacy & Security → Open Anyway**
              — or run `xattr -dr com.apple.quarantine /Applications/calto.app`.
 
           Requires macOS 27 on Apple silicon.
           EOF
           )"
+          # Also publish under a fixed name, so releases/latest/download/calto.dmg always works.
+          cp "dist/calto-$TAG.dmg" dist/calto.dmg
           if gh release view "$TAG" >/dev/null 2>&1; then
             # Release drafted in the GitHub UI: just attach the build.
             gh release upload "$TAG" dist/*.dmg --clobber

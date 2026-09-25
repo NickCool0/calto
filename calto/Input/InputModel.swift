@@ -96,29 +96,38 @@ final class InputModel {
         notice = nil
     }
 
-    func recognize(settings: AppSettings) {
-        do {
-            let request = try ExtractionRequest(
-                content: content,
-                instruction: instruction,
-                customInstructions: settings.customPrompt
-            )
-            guard settings.isProviderReady else {
-                showError(String(localized: "Set up a model in Settings first."))
-                return
-            }
-            let images = request.images.count
-            let characters = request.text?.count ?? 0
-            notice = Notice(
-                message: String(localized: "Ready to recognize: images — \(images), characters — \(characters). Recognition arrives in the next version."),
-                isError: false
-            )
-        } catch {
-            show(error)
+    /// ⌘V with images on the pasteboard: adds them and returns `true`. Text is left to the text field.
+    func pasteImages(from pasteboard: NSPasteboard = .general) -> Bool {
+        let pasted = PasteboardReader.read(pasteboard)
+        switch pasted {
+        case .images, .imageFiles:
+            add(pasted)
+            return true
+        case .text, .unsupported, .empty:
+            return false
         }
     }
 
-    private func show(_ error: InputError) {
+    /// The request for the current input, or `nil` with an explanation shown.
+    func makeRequest(settings: AppSettings) -> ExtractionRequest? {
+        guard !isProcessing else { return nil }
+        do {
+            return try ExtractionRequest(content: content, instruction: instruction, customInstructions: settings.customPrompt)
+        } catch {
+            show(error)
+            return nil
+        }
+    }
+
+    func showInfo(_ message: String) {
+        notice = Notice(message: message, isError: false)
+    }
+
+    func clearNotice() {
+        notice = nil
+    }
+
+    func show(_ error: InputError) {
         switch error {
         case .emptyInput:
             showError(String(localized: "Paste or drop a screenshot, or type some text first."))
@@ -133,7 +142,7 @@ final class InputModel {
         }
     }
 
-    private func showError(_ message: String) {
+    func showError(_ message: String) {
         notice = Notice(message: message, isError: true)
     }
 }

@@ -36,6 +36,9 @@ done
 [[ "$(plist_value "$PLIST" CFBundleIconName)" == "AppIcon" && -f "$APP/Contents/Resources/AppIcon.icns" ]] \
     && ok "app icon" || fail "app icon missing (CFBundleIconName / AppIcon.icns)"
 
+xcrun assetutil --info "$APP/Contents/Resources/Assets.car" 2>/dev/null | grep -q '"Name" : "MenuBarIcon"' \
+    && ok "menu bar icon" || fail "MenuBarIcon missing from the asset catalog"
+
 [[ "$(lipo -archs "$BINARY")" == *arm64* ]] && ok "arm64 binary" || fail "binary is not arm64"
 
 for file in Localizable.strings InfoPlist.strings; do

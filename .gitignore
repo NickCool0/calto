@@ -15,3 +15,6 @@ xcuserdata/
 /.claude/skills/swiftui-whats-new-27/
 /.claude/skills/test-modernizer/
 /.claude/skills/audit-xcode-security-settings/
+
+# Python
+__pycache__/

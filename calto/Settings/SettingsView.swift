@@ -74,7 +74,7 @@ struct SettingsView: View {
         case .prompt:
             PromptSettingsPane(settings: context.settings)
         case .general:
-            GeneralSettingsPane(context: context)
+            GeneralSettingsPane(context: context, settings: context.settings)
         }
     }
 

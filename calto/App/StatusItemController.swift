@@ -1,25 +1,27 @@
 import AppKit
 import CaltoKit
 
-/// Owns the menu bar icon. A left click toggles the input popup; a right click (or ⌃-click)
+/// Owns the menu bar icon. A left click toggles the popover; a right click (or ⌃-click)
 /// shows the menu, which is rebuilt every time so it reflects the current state.
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
     private let context: AppContext
-    private let inputPanel: InputPanelController
+    private let popover: PopoverController
     private let hotKey: GlobalHotKey
 
     private var calendarAccess: CalendarAccess { context.calendarAccess }
 
-    init(context: AppContext, inputPanel: InputPanelController, hotKey: GlobalHotKey) {
+    init(context: AppContext, popover: PopoverController, hotKey: GlobalHotKey) {
         self.context = context
-        self.inputPanel = inputPanel
+        self.popover = popover
         self.hotKey = hotKey
         super.init()
 
-        let icon = NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: "calto")
+        // Template image: the system tints it for light/dark menu bars and the selected state.
+        let icon = NSImage(named: "MenuBarIcon") ?? NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: nil)
         icon?.isTemplate = true
+        icon?.accessibilityDescription = "calto"
         if let button = statusItem.button {
             button.image = icon
             button.target = self
@@ -29,16 +31,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
         menu.autoenablesItems = false
         menu.delegate = self
-
-        inputPanel.visibilityChanged = { [weak self] visible in
-            self?.statusItem.button?.highlight(visible)
-        }
     }
 
-    /// Where the popup should hang from; `nil` when the icon isn't on screen (e.g. hidden by the notch).
-    var buttonFrameOnScreen: NSRect? {
-        guard let button = statusItem.button, let window = button.window, window.isVisible else { return nil }
-        return window.convertToScreen(button.convert(button.bounds, to: nil))
+    var button: NSStatusBarButton? {
+        statusItem.button
     }
 
     @objc private func statusItemClicked() {
@@ -49,7 +45,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             statusItem.button?.performClick(nil)
             statusItem.menu = nil
         } else {
-            inputPanel.toggle()
+            popover.toggle()
         }
     }
 
@@ -152,11 +148,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     // MARK: Actions
 
     @objc private func openInput() {
-        inputPanel.show()
+        popover.show()
     }
 
     @objc private func openSettings() {
-        inputPanel.hide(returnFocus: false)
+        popover.close()
         context.openSettings()
     }
 

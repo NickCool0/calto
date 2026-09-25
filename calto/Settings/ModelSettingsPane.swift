@@ -23,7 +23,7 @@ struct ModelSettingsPane: View {
         Form {
             Section {
                 Picker("Provider", selection: $settings.provider) {
-                    ForEach(LLMProvider.allCases) { provider in
+                    ForEach(LLMProvider.selectable) { provider in
                         Text(provider.displayName).tag(provider)
                     }
                 }
@@ -38,9 +38,28 @@ struct ModelSettingsPane: View {
                     Label(AppleModelAvailability.description, systemImage: AppleModelAvailability.isAvailable ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(AppleModelAvailability.isAvailable ? Color.green : Color.orange)
                 }
-            } else {
+            } else if provider != .mock {
                 connectionSection
                 modelSection
+            }
+
+            Section {
+                Toggle(isOn: $settings.alwaysRecognizeTextOnDevice) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Always read screenshots on this Mac")
+                        Text("Text is recognized on the device and only the text is sent; images never leave your Mac. Layouts such as tables may be read less accurately.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .toggleStyle(.switch)
+                .disabled(provider.isLocal)
+            } header: {
+                Text("Images")
+            } footer: {
+                Text("When a model can’t read images, calto recognizes the text on this Mac automatically.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .settingsPaneStyle()
@@ -222,6 +241,8 @@ struct ModelSettingsPane: View {
             String(localized: "Any server with an OpenAI-compatible API: a local model (Ollama, LM Studio, osaurus) or an aggregator like OpenRouter.")
         case .appleOnDevice:
             String(localized: "Apple’s on-device model: free, private, works offline. Screenshots are read with on-device text recognition.")
+        case .mock:
+            String(localized: "Canned answers for development: every line of text becomes an event. Nothing is sent anywhere.")
         }
     }
 }

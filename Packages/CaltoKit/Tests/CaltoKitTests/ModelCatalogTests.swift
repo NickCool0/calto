@@ -140,7 +140,7 @@ struct ModelCatalogParsingTests {
         ])
     }
 
-    @Test("Garbage or HTML is an invalid response", arguments: LLMProvider.allCases.filter { $0 != .appleOnDevice })
+    @Test("Garbage or HTML is an invalid response", arguments: LLMProvider.allCases.filter { !$0.isLocal })
     func invalid(provider: LLMProvider) {
         #expect(throws: ProviderError.invalidResponse) {
             try ModelCatalog.parse(Data("<html>Bad gateway</html>".utf8), provider: provider)
@@ -175,7 +175,7 @@ struct ModelCatalogErrorTests {
         #expect(throws: ProviderError.invalidAPIKey) {
             try ModelCatalog.validate(status: 400, body: body, provider: .gemini)
         }
-        #expect(throws: ProviderError.unexpectedStatus(400)) {
+        #expect(throws: ProviderError.badRequest("bad")) {
             try ModelCatalog.validate(status: 400, body: Data(#"{"error":"bad"}"#.utf8), provider: .gemini)
         }
     }
@@ -198,11 +198,21 @@ struct LLMProviderTests {
         #expect(!LLMProvider.appleOnDevice.acceptsAPIKey)
     }
 
-    @Test("Every provider except Apple's has an endpoint")
+    @Test("Every provider except the local ones has an endpoint")
     func endpoints() {
         for provider in LLMProvider.allCases {
-            #expect((provider.defaultBaseURL == nil) == (provider == .appleOnDevice))
+            #expect((provider.defaultBaseURL == nil) == provider.isLocal)
         }
+    }
+
+    @Test("Error bodies of every provider yield their message", arguments: [
+        (#"{"error":{"type":"invalid_request_error","message":"model: not found"}}"#, "model: not found"),
+        (#"{"error":{"code":400,"message":"Invalid JSON payload","status":"INVALID_ARGUMENT"}}"#, "Invalid JSON payload"),
+        (#"{"error":"model 'llava' not found"}"#, "model 'llava' not found"),
+        ("Bad Gateway", "Bad Gateway"),
+    ])
+    func errorMessages(body: String, expected: String) {
+        #expect(ModelCatalog.errorMessage(in: Data(body.utf8)) == expected)
     }
 }
 

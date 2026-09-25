@@ -9,6 +9,8 @@ public enum LLMProvider: String, CaseIterable, Codable, Sendable, Identifiable {
     case openAICompatible
     /// Apple's on-device model (Foundation Models): no key, nothing leaves the Mac.
     case appleOnDevice
+    /// Canned answers for developing and testing without a key or network; shown in Debug builds only.
+    case mock
 
     public var id: String { rawValue }
 
@@ -16,12 +18,12 @@ public enum LLMProvider: String, CaseIterable, Codable, Sendable, Identifiable {
     public var requiresAPIKey: Bool {
         switch self {
         case .anthropic, .openAI, .gemini: true
-        case .openAICompatible, .appleOnDevice: false
+        case .openAICompatible, .appleOnDevice, .mock: false
         }
     }
 
     public var acceptsAPIKey: Bool {
-        self != .appleOnDevice
+        self != .appleOnDevice && self != .mock
     }
 
     /// Only the OpenAI-compatible endpoint is user-configurable.
@@ -30,7 +32,12 @@ public enum LLMProvider: String, CaseIterable, Codable, Sendable, Identifiable {
     }
 
     public var usesModelSelection: Bool {
-        self != .appleOnDevice
+        self != .appleOnDevice && self != .mock
+    }
+
+    /// Runs entirely on the Mac: nothing is sent anywhere.
+    public var isLocal: Bool {
+        self == .appleOnDevice || self == .mock
     }
 
     public var defaultBaseURL: URL? {
@@ -39,7 +46,7 @@ public enum LLMProvider: String, CaseIterable, Codable, Sendable, Identifiable {
         case .openAI: URL(string: "https://api.openai.com/v1")
         case .gemini: URL(string: "https://generativelanguage.googleapis.com/v1beta")
         case .openAICompatible: URL(string: "http://localhost:11434/v1")
-        case .appleOnDevice: nil
+        case .appleOnDevice, .mock: nil
         }
     }
 
@@ -47,7 +54,7 @@ public enum LLMProvider: String, CaseIterable, Codable, Sendable, Identifiable {
     public var defaultModel: String? {
         switch self {
         case .anthropic: "claude-opus-5"
-        case .openAI, .gemini, .openAICompatible, .appleOnDevice: nil
+        case .openAI, .gemini, .openAICompatible, .appleOnDevice, .mock: nil
         }
     }
 
@@ -57,7 +64,7 @@ public enum LLMProvider: String, CaseIterable, Codable, Sendable, Identifiable {
         case .anthropic: URL(string: "https://console.anthropic.com/settings/keys")
         case .openAI: URL(string: "https://platform.openai.com/api-keys")
         case .gemini: URL(string: "https://aistudio.google.com/apikey")
-        case .openAICompatible, .appleOnDevice: nil
+        case .openAICompatible, .appleOnDevice, .mock: nil
         }
     }
 }
