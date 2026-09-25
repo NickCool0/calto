@@ -1,0 +1,17 @@
+# Xcode / SwiftPM
+DerivedData/
+build/
+.build/
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+
+# Apple-authored agent skills: not redistributable, fetch with scripts/fetch-skills.sh
+/.claude/skills/swiftui-specialist/
+/.claude/skills/swiftui-whats-new-27/
+/.claude/skills/test-modernizer/
+/.claude/skills/audit-xcode-security-settings/

@@ -1,0 +1,23 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSCalendarsFullAccessUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calto reads your calendars to warn about conflicts and duplicates, and adds only the events you confirm."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calto читает ваши календари, чтобы предупреждать о конфликтах и дубликатах, и добавляет только подтверждённые вами события."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
