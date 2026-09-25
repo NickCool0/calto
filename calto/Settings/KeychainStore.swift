@@ -7,7 +7,13 @@ nonisolated enum KeychainStore {
         let status: OSStatus
 
         var errorDescription: String? {
-            (SecCopyErrorMessageString(status, nil) as String?) ?? "Keychain error \(status)"
+            switch status {
+            case errSecUserCanceled, errSecAuthFailed, errSecInteractionNotAllowed:
+                // Ad-hoc signed builds are a "new app" to the Keychain after every update.
+                String(localized: "macOS didn’t allow calto to read the key. After an update macOS asks once: try again and choose “Always Allow”.")
+            default:
+                (SecCopyErrorMessageString(status, nil) as String?) ?? "Keychain error \(status)"
+            }
         }
     }
 

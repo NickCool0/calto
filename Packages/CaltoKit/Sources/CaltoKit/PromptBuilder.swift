@@ -13,10 +13,12 @@ public struct ExtractionPrompt: Sendable, Hashable {
 
 public enum PromptBuilder {
     static let rules = """
-    You extract calendar events from the user's text and images (screenshots of invitations, chats, \
-    posters, schedules, tickets).
+    You extract calendar events from the user's input: typed text and images (screenshots of invitations, \
+    chats, posters, schedules, tickets).
 
     Rules:
+    - The user's input can mix event details with instructions to you ("only meetings with Anna", \
+    "remind me an hour before", "every Monday"). Follow the instructions; never turn them into events or titles.
     - Return every distinct event the user would want in their calendar. If there is none, return an empty list.
     - Resolve relative dates ("today", "tomorrow", "on Thursday", "next week", "in 3 days") from the current \
     date, weekday and time zone given in the request.
@@ -24,17 +26,19 @@ public enum PromptBuilder {
     all_day to true; their end is the last day, or null for a single day.
     - Set time_zone only when the source explicitly names a time zone or a city whose time applies; otherwise \
     null, and the times are in the user's time zone.
-    - If the end or duration is not stated, set end to null. Do not invent a duration.
+    - If the end or duration is not stated, set end to null. Do not invent a duration, and do not report it \
+    as an ambiguity: the user's default duration is used.
     - Never guess silently. If the year is missing and not obvious, the day/month order is unclear, AM/PM is \
     unclear, or anything else is uncertain, make your best guess AND add a short note to ambiguities, written \
-    in the user's language.
-    - reminder_minutes_before: only when reminders are explicitly requested ("remind me an hour before" → [60]); \
-    otherwise null.
+    in the user's language. A missing year that is clearly the current or next occurrence is not an ambiguity.
+    - reminder_minutes_before: only when reminders are explicitly requested, one number per reminder \
+    ("remind me an hour before" → [60]; "remind me 15 and 30 minutes before" → [15, 30]; \
+    "напомни за день и за час" → [1440, 60]). Otherwise null, and the user's default reminder is used.
     - recurrence: only when repetition is explicitly stated ("every Monday", "daily until June"); otherwise null.
     - url: an online meeting link (Zoom, Google Meet, Teams, …) or the event's page, if present.
     - title: short and specific, in the language of the source text. Put other useful details (agenda, dress \
     code, phone numbers) into notes.
-    - Follow the user's instructions, for example to keep only some of the events or to add reminders.
+    - The user's standing instructions, if given, apply to every event unless the input says otherwise.
     """
 
     /// - Parameters:
@@ -57,11 +61,8 @@ public enum PromptBuilder {
         if let custom = request.customInstructions {
             sections.append("The user's standing instructions:\n\(custom)")
         }
-        if let instruction = request.instruction {
-            sections.append("Instruction for this request:\n\(instruction)")
-        }
         if let text = request.text {
-            sections.append("Text:\n\"\"\"\n\(text)\n\"\"\"")
+            sections.append("User's input:\n\"\"\"\n\(text)\n\"\"\"")
         }
         for (index, text) in recognizedText.enumerated() {
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -9,6 +9,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private let context: AppContext
     private let popover: PopoverController
     private let hotKey: GlobalHotKey
+    private var pulseTimer: Timer?
 
     private var calendarAccess: CalendarAccess { context.calendarAccess }
 
@@ -35,6 +36,32 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     var button: NSStatusBarButton? {
         statusItem.button
+    }
+
+    /// Pulses the icon while a request is being processed, so it's visible even with the popover closed.
+    func setBusy(_ busy: Bool) {
+        pulseTimer?.invalidate()
+        pulseTimer = nil
+        guard let button = statusItem.button else { return }
+        button.toolTip = busy ? String(localized: "calto is processing your request…") : nil
+        guard busy else {
+            button.animator().alphaValue = 1
+            return
+        }
+        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            button.alphaValue = 0.5
+            return
+        }
+        pulseTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let button = self?.statusItem.button else { return }
+                let target: CGFloat = button.alphaValue > 0.7 ? 0.35 : 1
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = 0.6
+                    button.animator().alphaValue = target
+                }
+            }
+        }
     }
 
     @objc private func statusItemClicked() {

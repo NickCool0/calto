@@ -193,8 +193,7 @@ struct ExtractionResponseParserTests {
 
 struct PromptBuilderTests {
     private let request = try! ExtractionRequest(
-        content: InputContent(text: "Добавь на завтра в 13 встречку"),
-        instruction: "напомни за час",
+        content: InputContent(text: "Добавь на завтра в 13 встречку, напомни за 15 и за 30 минут"),
         customInstructions: "Рабочие встречи — в календарь «Работа».",
         referenceDate: Date(timeIntervalSince1970: 1_790_335_800), // 2026-09-25 14:30 UTC+3
         timeZone: TimeZone(identifier: "Europe/Moscow")!,
@@ -210,15 +209,22 @@ struct PromptBuilderTests {
         #expect(context.contains(#"language "ru""#))
     }
 
-    @Test("User message holds custom instructions, the instruction, the text and OCR text")
+    @Test("User message holds custom instructions, the input (with its instructions) and OCR text")
     func sections() {
         let prompt = PromptBuilder.build(for: request, recognizedText: ["Концерт 12 октября 20:00", " "], imageCount: 0)
         #expect(prompt.user.contains("Рабочие встречи — в календарь «Работа»."))
-        #expect(prompt.user.contains("Instruction for this request:\nнапомни за час"))
-        #expect(prompt.user.contains("Добавь на завтра в 13 встречку"))
+        #expect(prompt.user.contains("User's input:\n\"\"\"\nДобавь на завтра в 13 встречку, напомни за 15 и за 30 минут\n\"\"\""))
         #expect(prompt.user.contains("Text recognized on image 1:"))
         #expect(prompt.user.contains("(no text found)"))
         #expect(!prompt.system.contains("JSON Schema"))
+    }
+
+    @Test("Rules explain instructions inside the input and several reminders")
+    func rules() {
+        let prompt = PromptBuilder.build(for: request)
+        #expect(prompt.system.contains("mix event details with instructions"))
+        #expect(prompt.system.contains("[15, 30]"))
+        #expect(prompt.system.contains("default reminder"))
     }
 
     @Test("JSON-only mode spells out the schema in the system prompt")
@@ -260,7 +266,6 @@ struct MockExtractorTests {
         let zone = TimeZone(identifier: "Europe/Moscow")!
         let request = try ExtractionRequest(
             content: InputContent(text: "Standup\n\nReview"),
-            instruction: "",
             referenceDate: Date(timeIntervalSince1970: 1_790_335_800),
             timeZone: zone
         )

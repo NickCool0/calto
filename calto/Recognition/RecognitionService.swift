@@ -19,14 +19,31 @@ nonisolated enum RecognitionError: LocalizedError {
     }
 }
 
+/// What recognition is doing right now, shown in the popover while it runs.
+enum RecognitionStage: Equatable {
+    /// Waiting for the Keychain (macOS may be asking for the password).
+    case unlockingKey
+    /// Reading text on the images with Vision, on this Mac.
+    case readingText
+    /// Waiting for the model's answer.
+    case waitingForModel
+}
+
 /// Sends the input to the chosen provider and turns the answer into event drafts.
 ///
 /// Recovery built in: if an endpoint rejects the output schema it retries in plain JSON mode, and if the
 /// model can't read images it retries with text recognized on the device.
 final class RecognitionService {
     private let session = URLSession(configuration: .ephemeral)
+    private var report: (RecognitionStage) -> Void = { _ in }
 
-    func recognize(_ request: ExtractionRequest, settings: AppSettings) async throws -> [EventDraft] {
+    func recognize(
+        _ request: ExtractionRequest,
+        settings: AppSettings,
+        progress: @escaping (RecognitionStage) -> Void = { _ in }
+    ) async throws -> [EventDraft] {
+        report = progress
+        defer { report = { _ in } }
         let events = try await extractEvents(request, settings: settings)
         let context = ResolutionContext(
             timeZone: request.timeZone,
@@ -41,12 +58,14 @@ final class RecognitionService {
         let provider = settings.provider
         switch provider {
         case .mock:
+            report(.waitingForModel)
             try await Task.sleep(for: .milliseconds(600))
             return try parse(MockExtractor.output(for: request))
 
         case .appleOnDevice:
             let text = try await recognizeText(in: request.images)
             let prompt = PromptBuilder.build(for: request, recognizedText: text)
+            report(.waitingForModel)
             do {
                 return try await AppleModelExtractor.extract(prompt: prompt)
             } catch let error as RecognitionError {
@@ -58,7 +77,10 @@ final class RecognitionService {
         case .anthropic, .openAI, .gemini, .openAICompatible:
             let apiKey: String?
             do {
-                apiKey = provider.acceptsAPIKey ? try settings.apiKey(for: provider) : nil
+                if settings.mayPromptForAPIKey(provider) {
+                    report(.unlockingKey)
+                }
+                apiKey = provider.acceptsAPIKey ? try await settings.apiKey(for: provider) : nil
             } catch {
                 throw RecognitionError.keychain(error.localizedDescription)
             }
@@ -88,6 +110,7 @@ final class RecognitionService {
         images: [ImageAttachment],
         recognizedText: [String]
     ) async throws -> [WireEvent] {
+        report(.waitingForModel)
         do {
             let prompt = PromptBuilder.build(for: request, recognizedText: recognizedText, imageCount: images.count)
             return try await perform(configuration, prompt: prompt, images: images, mode: .structured)
@@ -142,6 +165,7 @@ final class RecognitionService {
 
     private func recognizeText(in images: [ImageAttachment]) async throws -> [String] {
         guard !images.isEmpty else { return [] }
+        report(.readingText)
         do {
             return try await TextRecognizer.recognizeText(in: images)
         } catch {

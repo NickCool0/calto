@@ -54,7 +54,8 @@ an AI model of your choice finds the events; you check them and add them to any 
 - ⚠️ **Flags what's uncertain**: ambiguous dates, time conflicts, likely duplicates and Exchange's one-reminder limit.
 - ☁️ **Every calendar you already have**: iCloud, Google, Exchange: whatever is set up in Apple Calendar.
 - 🔒 **Private by design**: no telemetry, no backend; keys in the Keychain; screenshots can stay on your Mac.
-- 🍎 **Native**: SwiftUI + AppKit, Liquid Glass popover, English and Russian, zero third-party dependencies.
+- 😀 **Readable at a glance**: by default each title starts with a fitting emoji (🚬, 🛒, 💼); change it in Settings → Prompt.
+- 🍎 **Native**: SwiftUI + AppKit, Liquid Glass popover, English and Russian (switch in Settings), zero third-party dependencies.
 
 ## How it works
 
@@ -98,14 +99,15 @@ macOS 27 on Apple silicon.
 | <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>C</kbd> | Open calto from any app |
 | Click the menu bar icon | Open calto · right-click for the menu |
 | <kbd>⌘</kbd><kbd>V</kbd> | Paste a screenshot, image or text |
-| <kbd>⌘</kbd><kbd>↩</kbd> | Recognize · add the reviewed events |
+| <kbd>⌘</kbd><kbd>↩</kbd> | Create events (the ↑ button) · add the reviewed events |
 | <kbd>⌘</kbd><kbd>,</kbd> | Settings |
 | <kbd>Esc</kbd> | Close (your input is kept) |
 
 1. Paste or drop what you have: a screenshot of a chat, a poster, an email, or just type
-   *"Lunch with Anna tomorrow at 1 pm"*.
-2. Optionally add an instruction: *"only the meetings with Anna"*, *"remind me an hour before"*.
-3. Press **Recognize**, check the cards, change anything, and click **Add to Calendar**.
+   *"Lunch with Anna tomorrow at 1 pm"*. Screenshots appear as thumbnails above the text.
+2. Write any instructions in the same field: *"only the meetings with Anna"*, *"remind me 15 and 30 minutes before"*.
+3. Pick the calendar at the bottom of the popover, press **↑** (<kbd>⌘</kbd><kbd>↩</kbd>), check the cards, change
+   anything, and click **Add to Calendar**.
 
 > [!TIP]
 > Put things you always want into **Settings → Prompt**, such as *"work meetings go to the Work calendar"* or
@@ -163,7 +165,17 @@ or run `xattr -dr com.apple.quarantine /Applications/calto.app`.
 <details>
 <summary><b>After an update macOS asks for calendar or Keychain access again</b></summary>
 
-Every build has a new ad-hoc signature, so macOS treats it as a new app. Allow access once more.
+Every build has a new ad-hoc signature, so macOS treats it as a new app. Allow calendar access once more. When macOS
+asks for the Keychain password to read the API key, choose **Always Allow**: plain **Allow** asks again on every
+launch. calto reads the key once per launch and keeps it in memory.
+</details>
+
+<details>
+<summary><b>⌘V doesn't paste a screenshot</b></summary>
+
+Click into the text field first, then press <kbd>⌘</kbd><kbd>V</kbd> or use the paste button at the bottom left. Since
+macOS 15.4 apps may read the clipboard silently only when you paste, so calto reads it only then. If you copied
+a file in Finder, only image files are added.
 </details>
 
 <details>
@@ -196,7 +208,7 @@ Quit calto and move it to the Trash. To remove its data too: delete the `calto:`
 ## Roadmap
 
 - [x] Menu bar app, calendar access, CI and DMG releases
-- [x] Input: paste, drag and drop, instruction, global shortcut
+- [x] Input: one field for text, instructions and screenshots; paste, drag and drop, global shortcut
 - [x] Settings: providers, API keys in the Keychain, model list, your own prompt, defaults
 - [x] Recognition with Claude, OpenAI, Gemini, OpenAI-compatible servers and Apple's on-device model
 - [x] Review screen with conflict and duplicate warnings; undo

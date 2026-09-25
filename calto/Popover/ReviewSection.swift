@@ -102,12 +102,16 @@ struct ReviewCard: View {
                         HStack(spacing: 6) {
                             DatePicker("Start", selection: startBinding, displayedComponents: dateComponents)
                                 .labelsHidden()
+                                .fieldBackground()
                             Text(verbatim: "–")
                                 .foregroundStyle(.secondary)
                             DatePicker("End", selection: endBinding, in: item.draft.start..., displayedComponents: dateComponents)
                                 .labelsHidden()
+                                .fieldBackground()
                         }
-                        .datePickerStyle(.field)
+                        // The bordered field style draws a bezel that blurs on the popover's glass; the
+                        // compact style has none (a click opens a calendar), so the edge is ours and crisp.
+                        .datePickerStyle(.compact)
                         .environment(\.timeZone, eventZone)
                         HStack(spacing: 12) {
                             Toggle("All day", isOn: allDayBinding)
@@ -150,11 +154,14 @@ struct ReviewCard: View {
             DisclosureGroup("Location, link and notes", isExpanded: $showDetails) {
                 VStack(alignment: .leading, spacing: 6) {
                     TextField("Location", text: optionalText(\.location), prompt: Text("Location"))
+                        .fieldBackground()
                     TextField("Link", text: linkText, prompt: Text("Link"))
+                        .fieldBackground()
                     TextField("Notes", text: optionalText(\.notes), prompt: Text("Notes"), axis: .vertical)
                         .lineLimit(1...5)
+                        .fieldBackground()
                 }
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
                 .padding(.top, 4)
             }
             .font(.callout)
@@ -409,6 +416,15 @@ extension ResolutionIssue {
         case .missingTitle:
             String(localized: "The event has no title.")
         }
+    }
+}
+
+extension View {
+    /// A field's backdrop drawn by SwiftUI, sharp on the popover's glass (AppKit bezels blur there).
+    func fieldBackground() -> some View {
+        padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .background(.quaternary, in: .rect(cornerRadius: 6))
     }
 }
 

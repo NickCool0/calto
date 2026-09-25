@@ -104,6 +104,11 @@ struct ModelSettingsPane: View {
                     .foregroundStyle(.red)
                     .font(.callout)
             }
+            if settings.hasAPIKey(for: provider) {
+                Text("After each calto update macOS asks once for the Keychain password to read the key. Choose “Always Allow” so it doesn’t ask again.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             if let url = provider.apiKeyPageURL {
                 Link(destination: url) {
                     Label("Get an API key", systemImage: "arrow.up.right.square")
@@ -214,7 +219,7 @@ struct ModelSettingsPane: View {
         let provider = self.provider
         checkState = .checking
         do {
-            let key = try settings.apiKey(for: provider)
+            let key = try await settings.apiKey(for: provider)
             let loaded = try await ModelCatalogClient.fetchModels(
                 provider: provider,
                 apiKey: key,

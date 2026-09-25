@@ -27,6 +27,9 @@ struct EventChecksTests {
         ("Dentist appointment", "Dentist"),
         ("Кино: «Дюна»", "кино дюна"),
         ("Ёлка в школе", "елка в школе"),
+        // The default prompt asks for an emoji at the start of the title.
+        ("Покурить", "🚬 Покурить"),
+        ("🛒 Магазин", "Магазин"),
     ])
     func similarTitles(existingTitle: String, draftTitle: String) {
         #expect(EventChecks.duplicates(of: draft(draftTitle, at: 20 * 60), in: [existing(existingTitle)]).count == 1)

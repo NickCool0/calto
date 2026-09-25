@@ -63,13 +63,22 @@ final class AppSettings {
     /// Providers with a stored key, known without reading (and decrypting) the key itself.
     private(set) var providersWithKeys: Set<LLMProvider>
 
+    /// Keys already read from the Keychain in this run. Reading a key can make macOS ask for the
+    /// Keychain password (once after every update of an ad-hoc signed app), so it happens once per launch.
+    @ObservationIgnored private var cachedKeys: [LLMProvider: String] = [:]
+
+    /// Suggested standing instructions for new users, in the interface language.
+    static var defaultCustomPrompt: String {
+        String(localized: "Start each event title with one emoji that fits its meaning, for example: 🚬 Smoke break, 🛒 Groceries, 💼 Meeting.")
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         let storedProvider = defaults.string(forKey: Key.provider).flatMap(LLMProvider.init(rawValue:))
         provider = storedProvider.flatMap { LLMProvider.selectable.contains($0) ? $0 : nil } ?? .anthropic
         compatibleBaseURL = defaults.string(forKey: Key.compatibleBaseURL)
             ?? LLMProvider.openAICompatible.defaultBaseURL?.absoluteString ?? ""
-        customPrompt = defaults.string(forKey: Key.customPrompt) ?? ""
+        customPrompt = defaults.string(forKey: Key.customPrompt) ?? Self.defaultCustomPrompt
         modelsByProvider = defaults.dictionary(forKey: Key.models) as? [String: String] ?? [:]
         defaultCalendarID = defaults.string(forKey: Key.defaultCalendarID)
         let reminder = defaults.object(forKey: Key.defaultReminder) as? Int ?? 15
@@ -103,8 +112,24 @@ final class AppSettings {
         providersWithKeys.contains(provider)
     }
 
-    func apiKey(for provider: LLMProvider) throws -> String? {
-        try KeychainStore.read(account: provider.rawValue)
+    /// Whether using the provider's key may show the Keychain password prompt.
+    func mayPromptForAPIKey(_ provider: LLMProvider) -> Bool {
+        hasAPIKey(for: provider) && cachedKeys[provider] == nil
+    }
+
+    /// The provider's key: from memory, or read from the Keychain once per launch. The read runs off
+    /// the main thread, so the UI stays responsive while macOS shows its password prompt.
+    func apiKey(for provider: LLMProvider) async throws -> String? {
+        if let cached = cachedKeys[provider] {
+            return cached
+        }
+        guard hasAPIKey(for: provider) else { return nil }
+        let account = provider.rawValue
+        let key = try await Task.detached(priority: .userInitiated) {
+            try KeychainStore.read(account: account)
+        }.value
+        cachedKeys[provider] = key
+        return key
     }
 
     /// Saves the key, or removes it when `key` is blank.
@@ -113,9 +138,11 @@ final class AppSettings {
         if key.isEmpty {
             try KeychainStore.delete(account: provider.rawValue)
             providersWithKeys.remove(provider)
+            cachedKeys[provider] = nil
         } else {
             try KeychainStore.save(key, account: provider.rawValue)
             providersWithKeys.insert(provider)
+            cachedKeys[provider] = key
         }
     }
 

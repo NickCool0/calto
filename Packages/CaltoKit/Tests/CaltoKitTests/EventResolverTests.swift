@@ -134,6 +134,13 @@ struct EventResolverTests {
         #expect(!none.alarmsAreDefault)
     }
 
+    @Test("\"Remind me 15 and 30 minutes before\" gives two reminders instead of the default")
+    func twoAlarms() {
+        let draft = EventResolver.resolve(WireEvent(title: "🛒 Магазин", start: "2026-09-26T14:00", reminderMinutesBefore: [30, 15]), context: context())
+        #expect(draft.alarms == [EventAlarm(minutesBefore: 15), EventAlarm(minutesBefore: 30)])
+        #expect(!draft.alarmsAreDefault)
+    }
+
     @Test("Recurrence: weekly on weekdays until an inclusive date")
     func recurrence() throws {
         let wire = WireEvent(

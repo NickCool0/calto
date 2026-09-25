@@ -101,12 +101,22 @@
         }
       }
     },
-    "Added to every request, together with the instruction you type in the popup.": {
+    "Added to every request, together with what you type in the popup.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Добавляются к каждому запросу вместе с инструкцией, которую вы вводите во всплывающем окне."
+            "value": "Добавляется к каждому запросу вместе с тем, что вы пишете в окне calto."
+          }
+        }
+      }
+    },
+    "After each calto update macOS asks once for the Keychain password to read the key. Choose “Always Allow” so it doesn’t ask again.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "После каждого обновления calto macOS один раз спрашивает пароль связки ключей, чтобы прочитать ключ. Выберите «Разрешать всегда», чтобы она больше не спрашивала."
           }
         }
       }
@@ -291,22 +301,22 @@
         }
       }
     },
+    "Calendar for new events": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календарь для новых событий"
+          }
+        }
+      }
+    },
     "Calendars": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Календари"
-          }
-        }
-      }
-    },
-    "Cancel": {
-      "localizations": {
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отменить"
           }
         }
       }
@@ -487,6 +497,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не удалось сохранить ключ в Связку ключей: %@"
+          }
+        }
+      }
+    },
+    "Create events": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать события"
+          }
+        }
+      }
+    },
+    "Create events (⌘↩)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать события (⌘↩)"
           }
         }
       }
@@ -681,22 +711,22 @@
         }
       }
     },
-    "Instruction": {
+    "Interface language": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Инструкция"
+            "value": "Язык интерфейса"
           }
         }
       }
     },
-    "Instruction (optional): “only meetings with Anna”, “remind me an hour before”": {
+    "Language": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Инструкция (необязательно): «только встречи с Аней», «напомни за час»"
+            "value": "Язык"
           }
         }
       }
@@ -797,6 +827,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Новые события"
+          }
+        }
+      }
+    },
+    "No calendar": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет календаря"
           }
         }
       }
@@ -991,6 +1031,16 @@
         }
       }
     },
+    "Paste a screenshot or text, drop an image, or type: “Lunch with Anna tomorrow at 1 pm, remind me 15 and 30 minutes before”": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте скриншот или текст, перетащите изображение или напишите: «Обед с Аней завтра в 13, напомни за 15 и за 30 минут»"
+          }
+        }
+      }
+    },
     "Paste from the clipboard (⌘V)": {
       "localizations": {
         "ru": {
@@ -1011,16 +1061,6 @@
         }
       }
     },
-    "Paste text or a screenshot, or drop an image…": {
-      "localizations": {
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вставьте текст или скриншот, или перетащите изображение…"
-          }
-        }
-      }
-    },
     "Paste your key": {
       "localizations": {
         "ru": {
@@ -1037,6 +1077,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Похоже, уже есть в календаре: «%@», %@"
+          }
+        }
+      }
+    },
+    "Processing with %@…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обрабатываю в %@…"
           }
         }
       }
@@ -1071,32 +1121,22 @@
         }
       }
     },
-    "Recognize": {
+    "Reading text on the images…": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Распознать"
+            "value": "Распознаю текст на изображениях…"
           }
         }
       }
     },
-    "Recognize events (⌘↩)": {
+    "Reading the API key… If macOS asks for the Keychain password, choose “Always Allow”.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Распознать события (⌘↩)"
-          }
-        }
-      }
-    },
-    "Recognizing events with %@…": {
-      "localizations": {
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Распознаю события с помощью %@…"
+            "value": "Читаю API-ключ… Если macOS спросит пароль связки ключей, выберите «Разрешать всегда»."
           }
         }
       }
@@ -1147,6 +1187,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Правило повторения «%@» не поддерживается и пропущено."
+          }
+        }
+      }
+    },
+    "Restart calto": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустить calto"
+          }
+        }
+      }
+    },
+    "Restore Default": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуть по умолчанию"
+          }
+        }
+      }
+    },
+    "Same as System": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как в системе"
           }
         }
       }
@@ -1261,6 +1331,16 @@
         }
       }
     },
+    "Start each event title with one emoji that fits its meaning, for example: 🚬 Smoke break, 🛒 Groceries, 💼 Meeting.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начинай название каждого события с одного подходящего по смыслу эмодзи, например: 🚬 Покурить, 🛒 Магазин, 💼 Встреча."
+          }
+        }
+      }
+    },
     "Status": {
       "localizations": {
         "ru": {
@@ -1271,22 +1351,22 @@
         }
       }
     },
+    "Stop": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остановить"
+          }
+        }
+      }
+    },
     "System": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Система"
-          }
-        }
-      }
-    },
-    "Text": {
-      "localizations": {
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Текст"
           }
         }
       }
@@ -1417,6 +1497,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не удалось разобрать ответ модели. Попробуйте ещё раз или выберите другую модель."
+          }
+        }
+      }
+    },
+    "The new language applies after calto restarts.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый язык включится после перезапуска calto."
           }
         }
       }
@@ -1557,16 +1647,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Этот провайдер не предоставляет список моделей."
-          }
-        }
-      }
-    },
-    "This usually takes a few seconds.": {
-      "localizations": {
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Обычно это занимает несколько секунд."
           }
         }
       }
@@ -1721,6 +1801,16 @@
         }
       }
     },
+    "calto is processing your request…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calto обрабатывает запрос…"
+          }
+        }
+      }
+    },
     "calto needs access to your calendars to add events.": {
       "localizations": {
         "ru": {
@@ -1737,6 +1827,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "интервал: %lld"
+          }
+        }
+      }
+    },
+    "macOS didn’t allow calto to read the key. After an update macOS asks once: try again and choose “Always Allow”.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS не дала calto прочитать ключ. После обновления macOS спрашивает один раз: попробуйте снова и выберите «Разрешать всегда»."
           }
         }
       }

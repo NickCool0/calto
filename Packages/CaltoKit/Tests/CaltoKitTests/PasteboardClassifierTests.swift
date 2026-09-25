@@ -75,4 +75,20 @@ struct PasteboardClassifierTests {
         let item = [PasteboardEntry(typeIdentifier: "com.example.private", data: Data([1, 2, 3]))]
         #expect(PasteboardClassifier.classify([item]) == .unsupported)
     }
+
+    @Test("⌘V decision from types alone", arguments: [
+        // Screenshot (⌃⇧⌘4) and "Copy Image": images only.
+        (["public.png", "public.tiff"], PasteKind.images),
+        (["public.heic"], PasteKind.images),
+        // Numbers/Excel/Word put a picture next to the copied text: the text wins.
+        (["public.utf8-plain-text", "public.html", "public.tiff"], PasteKind.text),
+        (["public.utf8-plain-text"], PasteKind.text),
+        // Finder: file URLs, the file name as text and the icon.
+        (["public.file-url", "public.utf8-plain-text", "public.tiff"], PasteKind.files),
+        ([], PasteKind.text),
+        (["com.example.private"], PasteKind.text),
+    ])
+    func pasteKind(types: [String], expected: PasteKind) {
+        #expect(PasteboardClassifier.pasteKind(forTypes: types) == expected)
+    }
 }
