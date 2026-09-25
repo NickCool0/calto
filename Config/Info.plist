@@ -8,6 +8,12 @@
 	<!-- Without this key macOS denies calendar access silently. Localized in InfoPlist.xcstrings. -->
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>calto reads your calendars to warn about conflicts and duplicates, and adds only the events you confirm.</string>
+	<!-- Local model servers (Ollama, LM Studio) speak plain http on localhost / the LAN. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>

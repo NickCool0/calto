@@ -8,6 +8,8 @@ public struct ExtractionRequest: Sendable, Hashable {
     public var images: [ImageAttachment]
     /// The optional user instruction ("only meetings with Anna", "remind me an hour before").
     public var instruction: String?
+    /// The user's standing instructions from Settings, added to every request.
+    public var customInstructions: String?
     public var referenceDate: Date
     public var timeZone: TimeZone
     public var locale: Locale
@@ -15,6 +17,7 @@ public struct ExtractionRequest: Sendable, Hashable {
     public init(
         content: InputContent,
         instruction: String,
+        customInstructions: String = "",
         referenceDate: Date = .now,
         timeZone: TimeZone = .current,
         locale: Locale = .current
@@ -27,10 +30,12 @@ public struct ExtractionRequest: Sendable, Hashable {
             throw .textTooLong(limit: InputContent.maxTextLength)
         }
         let instruction = instruction.trimmingCharacters(in: .whitespacesAndNewlines)
+        let customInstructions = customInstructions.trimmingCharacters(in: .whitespacesAndNewlines)
 
         self.text = text.isEmpty ? nil : text
         self.images = content.images
         self.instruction = instruction.isEmpty ? nil : instruction
+        self.customInstructions = customInstructions.isEmpty ? nil : customInstructions
         self.referenceDate = referenceDate
         self.timeZone = timeZone
         self.locale = locale

@@ -9,6 +9,15 @@ enum CalendarAccessStatus {
     /// Granted "Add Events Only": calto can't read calendars, so conflicts, duplicates and undo won't work.
     case writeOnly
     case denied
+
+    var localizedDescription: String {
+        switch self {
+        case .notDetermined: String(localized: "Not requested yet")
+        case .fullAccess: String(localized: "Granted")
+        case .writeOnly: String(localized: "Add-only (full access required)")
+        case .denied: String(localized: "Denied")
+        }
+    }
 }
 
 struct CalendarAccount: Identifiable {
@@ -47,6 +56,14 @@ final class CalendarAccess {
                 self?.reload()
             }
         }
+    }
+
+    /// Asks on first launch; later launches only read the stored decision.
+    func requestAccessIfNeeded() async {
+        guard status == .notDetermined else { return }
+        // The system prompt is attached to the frontmost app, so a menu bar app must activate first.
+        NSApp.activate()
+        await requestAccess()
     }
 
     func requestAccess() async {
