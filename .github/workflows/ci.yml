@@ -90,7 +90,7 @@ jobs:
             diskutil image create from 2>&1 || true
             hdiutil create -volname calto -srcfolder "$staging" -fs HFS+ -format UDZO -ov "$dmg"
           fi
-          hdiutil imageinfo "$dmg" | grep -E '^Format:|Format Description'
+          diskutil image info "$dmg" || true
           hdiutil verify "$dmg"
 
       # archive: false uploads the DMG as-is, so it downloads as a .dmg rather than a zip.
