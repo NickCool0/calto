@@ -83,9 +83,15 @@ jobs:
           mkdir -p "$staging" "$RUNNER_TEMP/dist"
           ditto "$DERIVED_DATA/Build/Products/Release/calto.app" "$staging/calto.app"
           ln -s /Applications "$staging/Applications"
-          hdiutil create -volname "calto" -srcfolder "$staging" -fs HFS+ -format UDZO -ov \
-            "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
-          hdiutil verify "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
+          dmg="$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
+          # `hdiutil create` is deprecated on macOS 27 in favour of `diskutil image create`.
+          if ! diskutil image create from "$staging" "$dmg" --volumeName calto --format UDZO; then
+            echo "::notice::diskutil image create failed; usage below, falling back to hdiutil"
+            diskutil image create from 2>&1 || true
+            hdiutil create -volname calto -srcfolder "$staging" -fs HFS+ -format UDZO -ov "$dmg"
+          fi
+          hdiutil imageinfo "$dmg" | grep -E '^Format:|Format Description'
+          hdiutil verify "$dmg"
 
       # archive: false uploads the DMG as-is, so it downloads as a .dmg rather than a zip.
       - uses: actions/upload-artifact@v7
