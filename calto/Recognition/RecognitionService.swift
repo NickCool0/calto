@@ -99,7 +99,7 @@ final class RecognitionService {
 
     private func perform(
         _ configuration: ProviderConfiguration,
-        prompt: Prompt,
+        prompt: ExtractionPrompt,
         images: [ImageAttachment],
         mode: OutputMode
     ) async throws -> [WireEvent] {

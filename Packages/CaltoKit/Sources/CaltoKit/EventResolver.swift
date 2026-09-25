@@ -154,7 +154,7 @@ public enum EventResolver {
     }
 
     /// Accepts full URLs and bare domains ("zoom.us/j/123").
-    static func link(from text: String?) -> URL? {
+    public static func link(from text: String?) -> URL? {
         guard let text = nonEmpty(text), !text.contains(" ") else { return nil }
         if let url = URL(string: text), let scheme = url.scheme, !scheme.isEmpty, url.host() != nil || scheme != "http" && scheme != "https" {
             return url

@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 @testable import CaltoKit
 
 struct ExtractionRequestBuilderTests {
-    private let prompt = Prompt(system: "RULES", user: "Dinner tomorrow at 19:00")
+    private let prompt = ExtractionPrompt(system: "RULES", user: "Dinner tomorrow at 19:00")
     private let image = ImageAttachment(data: Data([1, 2, 3]), contentType: .png, pixelWidth: 1, pixelHeight: 1)
 
     private func body(_ request: URLRequest) throws -> JSONValue {

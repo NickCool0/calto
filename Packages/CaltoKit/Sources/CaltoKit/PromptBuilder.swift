@@ -1,7 +1,7 @@
 import Foundation
 
 /// The two halves of a prompt: stable rules (system) and this request's content (user).
-public struct Prompt: Sendable, Hashable {
+public struct ExtractionPrompt: Sendable, Hashable {
     public var system: String
     public var user: String
 
@@ -46,7 +46,7 @@ public enum PromptBuilder {
         recognizedText: [String] = [],
         imageCount: Int = 0,
         includeSchema: Bool = false
-    ) -> Prompt {
+    ) -> ExtractionPrompt {
         var system = rules
         if includeSchema {
             system += "\n\nRespond with only a JSON object that matches this JSON Schema, without any other text:\n"
@@ -71,7 +71,7 @@ public enum PromptBuilder {
         if imageCount > 0 {
             sections.append(imageCount == 1 ? "1 image is attached." : "\(imageCount) images are attached.")
         }
-        return Prompt(system: system, user: sections.joined(separator: "\n\n"))
+        return ExtractionPrompt(system: system, user: sections.joined(separator: "\n\n"))
     }
 
     /// "Current date and time: 2026-09-25 14:30, Friday. Time zone: Europe/Moscow (UTC+03:00). Locale: ru_RU."

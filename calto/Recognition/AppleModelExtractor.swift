@@ -33,7 +33,7 @@ nonisolated struct AppleEvent {
 }
 
 enum AppleModelExtractor {
-    static func extract(prompt: Prompt) async throws -> [WireEvent] {
+    static func extract(prompt: ExtractionPrompt) async throws -> [WireEvent] {
         guard AppleModelAvailability.isAvailable else {
             throw RecognitionError.appleModelUnavailable(AppleModelAvailability.description)
         }

@@ -30,7 +30,7 @@ public enum ExtractionRequestBuilder {
 
     public static func request(
         _ configuration: ProviderConfiguration,
-        prompt: Prompt,
+        prompt: ExtractionPrompt,
         images: [ImageAttachment],
         mode: OutputMode
     ) throws(ProviderError) -> URLRequest {
@@ -83,7 +83,7 @@ public enum ExtractionRequestBuilder {
 
     // MARK: Bodies
 
-    static func anthropicBody(model: String, prompt: Prompt, images: [ImageAttachment], mode: OutputMode) -> JSONValue {
+    static func anthropicBody(model: String, prompt: ExtractionPrompt, images: [ImageAttachment], mode: OutputMode) -> JSONValue {
         var content: [JSONValue] = images.map { image in
             .object([
                 "type": "image",
@@ -110,7 +110,7 @@ public enum ExtractionRequestBuilder {
         return .object(body)
     }
 
-    static func openAIBody(model: String, prompt: Prompt, images: [ImageAttachment], mode: OutputMode) -> JSONValue {
+    static func openAIBody(model: String, prompt: ExtractionPrompt, images: [ImageAttachment], mode: OutputMode) -> JSONValue {
         let userContent: JSONValue
         if images.isEmpty {
             // Plain string content: the widest compatibility with local servers.
@@ -150,7 +150,7 @@ public enum ExtractionRequestBuilder {
         ])
     }
 
-    static func geminiBody(prompt: Prompt, images: [ImageAttachment], mode: OutputMode) -> JSONValue {
+    static func geminiBody(prompt: ExtractionPrompt, images: [ImageAttachment], mode: OutputMode) -> JSONValue {
         var parts: [JSONValue] = [.object(["text": .string(prompt.user)])]
         parts += images.map { image in
             .object([
