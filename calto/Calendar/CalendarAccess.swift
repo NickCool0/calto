@@ -41,6 +41,8 @@ struct CalendarSummary: Identifiable, Hashable {
 @Observable
 final class CalendarAccess {
     private(set) var status: CalendarAccessStatus
+    /// The system permission prompt is up; no "Allow" banner meanwhile.
+    private(set) var isRequesting = false
     private(set) var accounts: [CalendarAccount] = []
     private(set) var lastError: String?
     /// The calendar Calendar.app uses for new events.
@@ -48,6 +50,7 @@ final class CalendarAccess {
 
     @ObservationIgnored private var store = EKEventStore()
     @ObservationIgnored private var changeObserver: (any NSObjectProtocol)?
+    @ObservationIgnored private var activationObserver: (any NSObjectProtocol)?
 
     init() {
         status = Self.currentStatus()
@@ -60,6 +63,24 @@ final class CalendarAccess {
                 self?.reload()
             }
         }
+        // Access may have been changed in System Settings while calto was in the background.
+        activationObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.refreshStatus()
+            }
+        }
+    }
+
+    /// Re-reads the stored decision (cheap; no prompt).
+    func refreshStatus() {
+        guard !isRequesting else { return }
+        let current = Self.currentStatus()
+        guard current != status else { return }
+        status = current
+        store = EKEventStore()
+        reload()
     }
 
     /// Asks on first launch; later launches only read the stored decision.
@@ -71,13 +92,18 @@ final class CalendarAccess {
     }
 
     func requestAccess() async {
+        guard !isRequesting else { return }
+        isRequesting = true
+        defer { isRequesting = false }
+        var granted = false
         do {
-            _ = try await Self.requestFullAccess()
+            granted = try await Self.requestFullAccess()
             lastError = nil
         } catch {
             lastError = error.localizedDescription
         }
-        status = Self.currentStatus()
+        // Trust the answer even if the stored status lags behind it for a moment.
+        status = granted ? .fullAccess : Self.currentStatus()
         // A store created before authorization may keep returning no calendars; start fresh.
         store = EKEventStore()
         reload()

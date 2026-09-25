@@ -11,19 +11,29 @@ struct ReviewItem: Identifiable {
     var id: UUID { draft.id }
 }
 
-/// Everything the popover shows: input → recognizing → review → saved.
+/// Everything the popover shows: input (recognition runs in place) → review → saved.
 @MainActor
 @Observable
 final class PopoverModel {
     enum Phase {
         case input
-        case recognizing
         case review
         case saved(count: Int, identifiers: [String])
     }
 
     let input = InputModel()
     private(set) var phase = Phase.input
+    /// Non-nil only while a request is really running.
+    private(set) var stage: RecognitionStage? {
+        didSet {
+            if (stage == .unlockingKey) != (oldValue == .unlockingKey) {
+                onKeychainAccess?(stage == .unlockingKey)
+            }
+            if (stage == nil) != (oldValue == nil) {
+                onActivityChanged?(stage != nil)
+            }
+        }
+    }
     var items: [ReviewItem] = []
     /// Events already in the calendars around the recognized dates, for duplicate/conflict warnings.
     private(set) var existing: [ExistingEvent] = []
@@ -33,6 +43,15 @@ final class PopoverModel {
     let calendarAccess: CalendarAccess
     private let recognition = RecognitionService()
     @ObservationIgnored private var task: Task<Void, Never>?
+    /// Identifies the current run, so a cancelled one can't touch the state of a newer one.
+    @ObservationIgnored private var run = 0
+
+    /// `true` while macOS may be showing the Keychain password prompt: the popover must not close.
+    @ObservationIgnored var onKeychainAccess: ((Bool) -> Void)?
+    /// Recognition started or stopped (the menu bar icon pulses meanwhile).
+    @ObservationIgnored var onActivityChanged: ((Bool) -> Void)?
+    /// A result (events or an error) is ready to be seen.
+    @ObservationIgnored var onResultReady: (() -> Void)?
 
     init(settings: AppSettings, calendarAccess: CalendarAccess) {
         self.settings = settings
@@ -40,8 +59,7 @@ final class PopoverModel {
     }
 
     var isRecognizing: Bool {
-        if case .recognizing = phase { return true }
-        return false
+        stage != nil
     }
 
     var includedCount: Int {
@@ -55,7 +73,7 @@ final class PopoverModel {
     // MARK: Recognition
 
     func recognize() {
-        guard !isRecognizing else { return }
+        guard !isRecognizing, case .input = phase else { return }
         guard settings.isProviderReady else {
             input.showError(String(localized: "Set up a model in Settings first."))
             return
@@ -63,17 +81,30 @@ final class PopoverModel {
         guard let request = input.makeRequest(settings: settings) else { return }
 
         input.clearNotice()
-        phase = .recognizing
+        run += 1
+        let thisRun = run
+        stage = .waitingForModel
         task = Task {
             do {
-                let drafts = try await recognition.recognize(request, settings: settings)
+                let drafts = try await recognition.recognize(request, settings: settings) { [weak self] stage in
+                    guard let self, self.run == thisRun else { return }
+                    self.stage = stage
+                }
                 try Task.checkCancellation()
+                guard self.run == thisRun else { return }
+                stage = nil
                 showReview(drafts)
+                onResultReady?()
             } catch is CancellationError {
-                phase = .input
+                // Normally cancelled by the user, and `cancelRecognition` already reset the state.
+                if self.run == thisRun {
+                    stage = nil
+                }
             } catch {
-                phase = .input
+                guard self.run == thisRun else { return }
+                stage = nil
                 input.showError(error.localizedDescription)
+                onResultReady?()
             }
         }
     }
@@ -81,7 +112,8 @@ final class PopoverModel {
     func cancelRecognition() {
         task?.cancel()
         task = nil
-        phase = .input
+        run += 1
+        stage = nil
     }
 
     private func showReview(_ drafts: [EventDraft]) {

@@ -221,7 +221,6 @@ struct CustomInstructionsTests {
     func included() throws {
         let request = try ExtractionRequest(
             content: InputContent(text: "Dinner Friday 19:00"),
-            instruction: "",
             customInstructions: "  Work events go to the Work calendar.\n"
         )
         #expect(request.customInstructions == "Work events go to the Work calendar.")
@@ -229,7 +228,7 @@ struct CustomInstructionsTests {
 
     @Test("Blank custom instructions are omitted")
     func blank() throws {
-        let request = try ExtractionRequest(content: InputContent(text: "Dinner"), instruction: "", customInstructions: " \n ")
+        let request = try ExtractionRequest(content: InputContent(text: "Dinner"), customInstructions: " \n ")
         #expect(request.customInstructions == nil)
     }
 }

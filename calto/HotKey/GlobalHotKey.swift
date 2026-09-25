@@ -21,11 +21,20 @@ final class GlobalHotKey {
 
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         let context = Unmanaged.passUnretained(self).toOpaque()
-        var status = InstallEventHandler(GetApplicationEventTarget(), hotKeyEventHandler, 1, &eventType, context, &handlerRef)
+        let status = InstallEventHandler(GetApplicationEventTarget(), hotKeyEventHandler, 1, &eventType, context, &handlerRef)
         if status == noErr {
-            let id = EventHotKeyID(signature: Self.signature, id: 1)
-            status = RegisterEventHotKey(combo.keyCode, combo.carbonModifiers, id, GetApplicationEventTarget(), 0, &hotKeyRef)
+            register()
+        } else {
+            registrationError = status
         }
+    }
+
+    /// Registers the shortcut; safe to call again after a failure (e.g. once a previous copy of calto
+    /// that still held it has quit).
+    func register() {
+        guard hotKeyRef == nil, handlerRef != nil else { return }
+        let id = EventHotKeyID(signature: Self.signature, id: 1)
+        let status = RegisterEventHotKey(combo.keyCode, combo.carbonModifiers, id, GetApplicationEventTarget(), 0, &hotKeyRef)
         registrationError = status == noErr ? nil : status
     }
 

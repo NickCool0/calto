@@ -2,7 +2,7 @@ import AppKit
 import CaltoKit
 import Observation
 
-/// State of the input popup: pasted/dropped/typed content, the user's instruction and feedback.
+/// State of the input popup: pasted, dropped or typed content (with any instructions in the text) and feedback.
 @MainActor
 @Observable
 final class InputModel {
@@ -12,7 +12,6 @@ final class InputModel {
     }
 
     var content = InputContent()
-    var instruction = ""
     private(set) var thumbnails: [ImageAttachment.ID: NSImage] = [:]
     private(set) var notice: Notice?
     /// Images still being downscaled in the background.
@@ -91,28 +90,15 @@ final class InputModel {
 
     func clear() {
         content = InputContent()
-        instruction = ""
         thumbnails = [:]
         notice = nil
-    }
-
-    /// ⌘V with images on the pasteboard: adds them and returns `true`. Text is left to the text field.
-    func pasteImages(from pasteboard: NSPasteboard = .general) -> Bool {
-        let pasted = PasteboardReader.read(pasteboard)
-        switch pasted {
-        case .images, .imageFiles:
-            add(pasted)
-            return true
-        case .text, .unsupported, .empty:
-            return false
-        }
     }
 
     /// The request for the current input, or `nil` with an explanation shown.
     func makeRequest(settings: AppSettings) -> ExtractionRequest? {
         guard !isProcessing else { return nil }
         do {
-            return try ExtractionRequest(content: content, instruction: instruction, customInstructions: settings.customPrompt)
+            return try ExtractionRequest(content: content, customInstructions: settings.customPrompt, locale: AppLanguage.requestLocale)
         } catch {
             show(error)
             return nil

@@ -9,11 +9,35 @@ struct GeneralSettingsPane: View {
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var loginItemNeedsApproval = SMAppService.mainApp.status == .requiresApproval
     @State private var loginItemError: String?
+    @State private var language = AppLanguage.selected
 
     private var calendarAccess: CalendarAccess { context.calendarAccess }
 
     var body: some View {
         Form {
+            Section("Language") {
+                Picker("Interface language", selection: $language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(verbatim: language.title).tag(language)
+                    }
+                }
+                .onChange(of: language) { _, newValue in
+                    AppLanguage.selected = newValue
+                }
+                if language != AppLanguage.launchSelection {
+                    HStack {
+                        Text("The new language applies after calto restarts.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Restart calto") {
+                            AppLanguage.relaunch()
+                        }
+                        .controlSize(.small)
+                    }
+                }
+            }
+
             Section("Calendar") {
                 LabeledContent("Access") {
                     HStack {

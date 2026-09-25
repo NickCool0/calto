@@ -12,8 +12,6 @@ struct PopoverView: View {
             switch model.phase {
             case .input:
                 InputSection(model: model, input: model.input, calendarAccess: calendarAccess, openSettings: openSettings)
-            case .recognizing:
-                RecognizingSection(model: model)
             case .review:
                 ReviewSection(model: model, calendarAccess: calendarAccess)
             case .saved(let count, _):
@@ -36,45 +34,50 @@ struct InputSection: View {
     let calendarAccess: CalendarAccess
     let openSettings: (SettingsTab?) -> Void
 
-    @FocusState private var textFocused: Bool
-
     private var settings: AppSettings { model.settings }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             banners
 
-            TextField("Text", text: $input.content.text, prompt: Text("Paste text or a screenshot, or drop an image…"), axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(.title3)
-                .lineLimit(3...12)
-                .focused($textFocused)
-                .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 10)
-
+            // Screenshots sit above the text they belong to.
             if !input.content.images.isEmpty || input.isProcessing {
                 ThumbnailStrip(input: input)
+                    .padding(.top, 12)
             }
 
-            Divider()
-
-            HStack(spacing: 8) {
-                Image(systemName: "text.bubble")
-                    .foregroundStyle(.secondary)
-                TextField(
-                    "Instruction",
-                    text: $input.instruction,
-                    prompt: Text("Instruction (optional): “only meetings with Anna”, “remind me an hour before”"),
-                    axis: .vertical
-                )
-                .textFieldStyle(.plain)
-                .lineLimit(1...3)
+            ComposerTextView(
+                text: $input.content.text,
+                isEditable: !model.isRecognizing,
+                focusToken: input.focusToken,
+                onPaste: { input.add($0) },
+                onSubmit: { model.recognize() }
+            )
+            .overlay(alignment: .topLeading) {
+                if input.content.text.isEmpty {
+                    Text("Paste a screenshot or text, drop an image, or type: “Lunch with Anna tomorrow at 1 pm, remind me 15 and 30 minutes before”")
+                        .font(.title3)
+                        .foregroundStyle(.tertiary)
+                        .allowsHitTesting(false)
+                }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
 
-            if let notice = input.notice {
+            if let stage = model.stage {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text(stageText(stage))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 10)
+                .transition(.opacity)
+            } else if let notice = input.notice {
                 Label(notice.message, systemImage: notice.isError ? "exclamationmark.triangle.fill" : "info.circle")
                     .font(.callout)
                     .foregroundStyle(notice.isError ? Color.red : Color.secondary)
@@ -88,15 +91,12 @@ struct InputSection: View {
             footer
         }
         .frame(width: 420)
-        .onAppear { textFocused = true }
-        .onChange(of: input.focusToken) { _, _ in
-            textFocused = true
-        }
+        .animation(.default, value: model.stage)
     }
 
     @ViewBuilder
     private var banners: some View {
-        if calendarAccess.status != .fullAccess {
+        if calendarAccess.status != .fullAccess && !calendarAccess.isRequesting {
             Banner(systemImage: "calendar.badge.exclamationmark", text: calendarBannerText) {
                 if calendarAccess.status == .notDetermined {
                     Button("Allow") {
@@ -124,17 +124,32 @@ struct InputSection: View {
         }
     }
 
+    private func stageText(_ stage: RecognitionStage) -> String {
+        switch stage {
+        case .unlockingKey:
+            String(localized: "Reading the API key… If macOS asks for the Keychain password, choose “Always Allow”.")
+        case .readingText:
+            String(localized: "Reading text on the images…")
+        case .waitingForModel:
+            String(localized: "Processing with \(settings.provider.shortName)…")
+        }
+    }
+
     private var footer: some View {
         HStack(spacing: 10) {
-            Button {
-                if !input.pasteImages() {
-                    input.add(PasteboardReader.read())
+            // The system Paste button: a user paste, so the clipboard is read without a privacy prompt.
+            PasteButton(payloadType: DroppedInput.self) { @Sendable [input] items in
+                Task { @MainActor in
+                    input.addDropped(items)
                 }
-            } label: {
-                Image(systemName: "doc.on.clipboard")
             }
-            .buttonStyle(.borderless)
+            .labelStyle(.iconOnly)
+            .disabled(model.isRecognizing)
             .help(Text("Paste from the clipboard (⌘V)"))
+
+            if calendarAccess.status == .fullAccess {
+                DefaultCalendarMenu(settings: settings, calendarAccess: calendarAccess)
+            }
 
             Button {
                 openSettings(.model)
@@ -150,7 +165,7 @@ struct InputSection: View {
 
             Spacer(minLength: 8)
 
-            if !input.content.isEmpty || !input.instruction.isEmpty {
+            if !input.content.isEmpty && !model.isRecognizing {
                 Button {
                     input.clear()
                 } label: {
@@ -168,13 +183,30 @@ struct InputSection: View {
             .buttonStyle(.borderless)
             .help(Text("Settings (⌘,)"))
 
-            Button("Recognize") {
-                model.recognize()
+            if model.isRecognizing {
+                Button {
+                    model.cancelRecognition()
+                } label: {
+                    Image(systemName: "stop.fill")
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.circle)
+                .help(Text("Stop"))
+                .accessibilityLabel(Text("Stop"))
+            } else {
+                Button {
+                    model.recognize()
+                } label: {
+                    Image(systemName: "arrow.up")
+                        .fontWeight(.semibold)
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.circle)
+                .keyboardShortcut(.return, modifiers: .command)
+                .disabled(input.content.isEmpty || input.isProcessing)
+                .help(Text("Create events (⌘↩)"))
+                .accessibilityLabel(Text("Create events"))
             }
-            .keyboardShortcut(.return, modifiers: .command)
-            .buttonStyle(.borderedProminent)
-            .disabled(input.content.isEmpty || input.isProcessing)
-            .help(Text("Recognize events (⌘↩)"))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -185,6 +217,52 @@ struct InputSection: View {
         guard provider.usesModelSelection else { return provider.shortName }
         let model = settings.currentModel
         return model.isEmpty ? provider.shortName : "\(provider.shortName) · \(model)"
+    }
+}
+
+/// Where new events go, right in the popover: the same setting as in Settings ▸ General.
+struct DefaultCalendarMenu: View {
+    @Bindable var settings: AppSettings
+    let calendarAccess: CalendarAccess
+
+    private var current: CalendarSummary? {
+        calendarAccess.calendar(withID: calendarAccess.resolvedCalendarID(preferred: settings.defaultCalendarID))
+    }
+
+    var body: some View {
+        Menu {
+            Picker("Calendar for new events", selection: $settings.defaultCalendarID) {
+                Text("Calendar app’s default").tag(String?.none)
+                ForEach(calendarAccess.accounts) { account in
+                    Section(account.title) {
+                        ForEach(account.calendars) { calendar in
+                            Label {
+                                Text(calendar.title)
+                            } icon: {
+                                Image(nsImage: CalendarSwatch.image(for: calendar.color))
+                            }
+                            .tag(String?.some(calendar.id))
+                        }
+                    }
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            HStack(spacing: 5) {
+                if let current {
+                    Image(nsImage: CalendarSwatch.image(for: current.color))
+                    Text(verbatim: current.title)
+                        .lineLimit(1)
+                } else {
+                    Text("No calendar")
+                }
+            }
+            .font(.caption)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.borderless)
+        .frame(maxWidth: 150, alignment: .leading)
+        .help(Text("Calendar for new events"))
     }
 }
 
@@ -264,30 +342,6 @@ struct ThumbnailStrip: View {
             .accessibilityLabel("Remove image")
         }
         .help(Text(verbatim: "\(image.pixelWidth) × \(image.pixelHeight)"))
-    }
-}
-
-// MARK: - Recognizing
-
-struct RecognizingSection: View {
-    let model: PopoverModel
-
-    var body: some View {
-        VStack(spacing: 14) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Recognizing events with \(model.settings.provider.shortName)…")
-                .font(.headline)
-            Text("This usually takes a few seconds.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            Button("Cancel", role: .cancel) {
-                model.cancelRecognition()
-            }
-            .keyboardShortcut(.cancelAction)
-        }
-        .padding(28)
-        .frame(width: 420)
     }
 }
 
