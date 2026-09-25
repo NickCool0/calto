@@ -76,17 +76,21 @@ jobs:
       - name: Verify bundle
         run: scripts/verify-bundle.sh "$DERIVED_DATA/Build/Products/Release/calto.app"
 
-      - name: Package
+      - name: Package DMG
         run: |
-          mkdir -p "$RUNNER_TEMP/dist"
-          ditto -c -k --sequesterRsrc --keepParent \
-            "$DERIVED_DATA/Build/Products/Release/calto.app" \
-            "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.zip"
+          # A disk image with calto.app and an Applications shortcut: open it, drag the app across.
+          staging="$RUNNER_TEMP/dmg"
+          mkdir -p "$staging" "$RUNNER_TEMP/dist"
+          ditto "$DERIVED_DATA/Build/Products/Release/calto.app" "$staging/calto.app"
+          ln -s /Applications "$staging/Applications"
+          hdiutil create -volname "calto" -srcfolder "$staging" -fs HFS+ -format UDZO -ov \
+            "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
+          hdiutil verify "$RUNNER_TEMP/dist/calto-${{ steps.meta.outputs.label }}.dmg"
 
       - uses: actions/upload-artifact@v4
         with:
           name: calto-${{ steps.meta.outputs.label }}
-          path: ${{ runner.temp }}/dist/*.zip
+          path: ${{ runner.temp }}/dist/*.dmg
           if-no-files-found: error
 
   release:
@@ -111,8 +115,8 @@ jobs:
           notes="$(cat <<'EOF'
           ## Install
 
-          1. Download the `.zip` below, unzip, move `calto.app` to `/Applications`.
-          2. The build is ad-hoc signed (not notarized), so allow it once: open it, then **System Settings → Privacy & Security → Open Anyway**
+          1. Download the `.dmg` below, open it and drag **calto** into **Applications**.
+          2. The build is ad-hoc signed (not notarized), so allow it once: open calto, then **System Settings → Privacy & Security → Open Anyway**
              — or run `xattr -dr com.apple.quarantine /Applications/calto.app`.
 
           Requires macOS 27 on Apple silicon.
@@ -120,10 +124,10 @@ jobs:
           )"
           if gh release view "$TAG" >/dev/null 2>&1; then
             # Release drafted in the GitHub UI: just attach the build.
-            gh release upload "$TAG" dist/*.zip --clobber
+            gh release upload "$TAG" dist/*.dmg --clobber
             exit 0
           fi
           # On a tag push the tag exists; on a manual run gh creates it at the built commit.
           flags=(--title "calto $TAG" --notes "$notes" --generate-notes --target "$GITHUB_SHA")
           [[ "$TAG" == *-* ]] && flags+=(--prerelease)
-          gh release create "$TAG" dist/*.zip "${flags[@]}"
+          gh release create "$TAG" dist/*.dmg "${flags[@]}"

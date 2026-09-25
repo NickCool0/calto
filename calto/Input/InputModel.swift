@@ -2,7 +2,7 @@ import AppKit
 import CaltoKit
 import Observation
 
-/// State of the input window: pasted/dropped/typed content, the user's instruction and feedback.
+/// State of the input popup: pasted/dropped/typed content, the user's instruction and feedback.
 @MainActor
 @Observable
 final class InputModel {
@@ -17,9 +17,15 @@ final class InputModel {
     private(set) var notice: Notice?
     /// Images still being downscaled in the background.
     private(set) var pendingImages = 0
+    /// Bumped each time the popup opens so the view can focus the text field.
+    private(set) var focusToken = 0
 
     var isProcessing: Bool {
         pendingImages > 0
+    }
+
+    func requestFocus() {
+        focusToken += 1
     }
 
     func add(_ pasted: PasteboardContent) {
@@ -90,13 +96,21 @@ final class InputModel {
         notice = nil
     }
 
-    func recognize() {
+    func recognize(settings: AppSettings) {
         do {
-            let request = try ExtractionRequest(content: content, instruction: instruction)
+            let request = try ExtractionRequest(
+                content: content,
+                instruction: instruction,
+                customInstructions: settings.customPrompt
+            )
+            guard settings.isProviderReady else {
+                showError(String(localized: "Set up a model in Settings first."))
+                return
+            }
             let images = request.images.count
             let characters = request.text?.count ?? 0
             notice = Notice(
-                message: String(localized: "Ready to recognize: images — \(images), characters — \(characters). Recognition arrives in the next stage."),
+                message: String(localized: "Ready to recognize: images — \(images), characters — \(characters). Recognition arrives in the next version."),
                 isError: false
             )
         } catch {

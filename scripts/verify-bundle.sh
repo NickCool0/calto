@@ -29,9 +29,12 @@ grep -q 'flags=.*runtime' <<<"$signature_info" && ok "hardened runtime" || fail 
 entitlements="$(mktemp)"
 trap 'rm -f "$entitlements"' EXIT
 codesign -d --entitlements - --xml "$APP" >"$entitlements" 2>/dev/null
-for key in com.apple.security.app-sandbox com.apple.security.personal-information.calendars; do
+for key in com.apple.security.app-sandbox com.apple.security.personal-information.calendars com.apple.security.network.client; do
     [[ "$(plist_value "$entitlements" "$key")" == "true" ]] && ok "entitlement $key" || fail "entitlement $key missing"
 done
+
+[[ "$(plist_value "$PLIST" CFBundleIconName)" == "AppIcon" && -f "$APP/Contents/Resources/AppIcon.icns" ]] \
+    && ok "app icon" || fail "app icon missing (CFBundleIconName / AppIcon.icns)"
 
 [[ "$(lipo -archs "$BINARY")" == *arm64* ]] && ok "arm64 binary" || fail "binary is not arm64"
 

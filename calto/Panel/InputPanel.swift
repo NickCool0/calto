@@ -1,12 +1,43 @@
 import AppKit
 import Carbon.HIToolbox
 
-/// The input window. A menu bar app has no visible Edit menu, so standard editing shortcuts are
-/// routed here explicitly; ⌘V goes to `pasteHandler`, which decides between images and text.
+/// The borderless popup under the menu bar icon. A menu bar app has no visible Edit menu, so the
+/// standard editing shortcuts are routed here explicitly; ⌘V goes to `pasteHandler`, which decides
+/// between images and text.
 final class InputPanel: NSPanel {
     var pasteHandler: (() -> Void)?
+    var closeHandler: (() -> Void)?
+
+    init(size: NSSize) {
+        super.init(
+            contentRect: NSRect(origin: .zero, size: size),
+            styleMask: [.borderless, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        isOpaque = false
+        backgroundColor = .clear
+        hasShadow = true
+        isFloatingPanel = true
+        level = .popUpMenu
+        hidesOnDeactivate = false
+        isReleasedWhenClosed = false
+        isMovable = false
+        collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient]
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+
+    /// Esc from anywhere in the popup, including while editing text.
+    override func cancelOperation(_ sender: Any?) {
+        closeHandler?()
+    }
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         guard event.type == .keyDown else {
@@ -16,7 +47,7 @@ final class InputPanel: NSPanel {
         let key = event.charactersIgnoringModifiers?.lowercased() ?? ""
 
         if event.keyCode == UInt16(kVK_Escape), flags.isEmpty {
-            orderOut(nil)
+            closeHandler?()
             return true
         }
 
@@ -27,7 +58,7 @@ final class InputPanel: NSPanel {
                 return true
             }
         case ("w", .command):
-            orderOut(nil)
+            closeHandler?()
             return true
         case ("x", .command) where send(#selector(NSText.cut(_:))),
              ("c", .command) where send(#selector(NSText.copy(_:))),
@@ -41,7 +72,7 @@ final class InputPanel: NSPanel {
         return super.performKeyEquivalent(with: event)
     }
 
-    /// Whether the text view being edited currently has keyboard focus.
+    /// Whether a text view in the popup has keyboard focus.
     var isEditingText: Bool {
         firstResponder is NSText
     }

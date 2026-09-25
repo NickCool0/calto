@@ -11,6 +11,146 @@
         }
       }
     },
+    "API key": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-ключ"
+          }
+        }
+      }
+    },
+    "API key (optional)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-ключ (необязательно)"
+          }
+        }
+      }
+    },
+    "Access": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ"
+          }
+        }
+      }
+    },
+    "Add an API key and choose a model in Settings to recognize events.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы распознавать события, добавьте API-ключ и выберите модель в настройках."
+          }
+        }
+      }
+    },
+    "Add-only (full access required)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только добавление (нужен полный доступ)"
+          }
+        }
+      }
+    },
+    "Added to every request, together with the instruction you type in the popup.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавляются к каждому запросу вместе с инструкцией, которую вы вводите во всплывающем окне."
+          }
+        }
+      }
+    },
+    "Allow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешить"
+          }
+        }
+      }
+    },
+    "Allow calto in Login Items to finish.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы завершить, разрешите calto в разделе «Объекты входа»."
+          }
+        }
+      }
+    },
+    "Any server with an OpenAI-compatible API: a local model (Ollama, LM Studio, osaurus) or an aggregator like OpenRouter.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Любой сервер с OpenAI-совместимым API: локальная модель (Ollama, LM Studio, osaurus) или агрегатор вроде OpenRouter."
+          }
+        }
+      }
+    },
+    "Apple Intelligence (on device)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Intelligence (на устройстве)"
+          }
+        }
+      }
+    },
+    "Apple’s on-device model: free, private, works offline. Screenshots are read with on-device text recognition.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Модель Apple на устройстве: бесплатно, приватно, работает без интернета. Скриншоты читаются локальным распознаванием текста."
+          }
+        }
+      }
+    },
+    "Available on this Mac. Nothing leaves your computer.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступна на этом Mac. Данные не покидают компьютер."
+          }
+        }
+      }
+    },
+    "Calendar": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календарь"
+          }
+        }
+      }
+    },
+    "Calendar access is off. Allow it in System Settings → Privacy & Security → Calendars.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ к календарям выключен. Разрешите его в Системных настройках → Конфиденциальность и безопасность → Календари."
+          }
+        }
+      }
+    },
     "Calendar access: add-only (full access required)": {
       "localizations": {
         "ru": {
@@ -61,12 +201,82 @@
         }
       }
     },
+    "Can’t connect to %@. For a local model, make sure Ollama or LM Studio is running.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось подключиться к %@. Для локальной модели проверьте, что Ollama или LM Studio запущены."
+          }
+        }
+      }
+    },
+    "Can’t connect to the server.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось подключиться к серверу."
+          }
+        }
+      }
+    },
+    "Change the model": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сменить модель"
+          }
+        }
+      }
+    },
+    "Check Key and Load Models": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверить ключ и загрузить модели"
+          }
+        }
+      }
+    },
+    "Choose from the loaded models": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать из загруженных моделей"
+          }
+        }
+      }
+    },
     "Clear": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Очистить"
+          }
+        }
+      }
+    },
+    "Connected. Models available: %lld.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключено. Доступно моделей: %lld."
+          }
+        }
+      }
+    },
+    "Connection": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключение"
           }
         }
       }
@@ -81,12 +291,112 @@
         }
       }
     },
+    "Couldn’t read the key from the Keychain: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать ключ из Связки ключей: %@"
+          }
+        }
+      }
+    },
+    "Couldn’t remove the key from the Keychain: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось удалить ключ из Связки ключей: %@"
+          }
+        }
+      }
+    },
+    "Couldn’t save the key to the Keychain: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось сохранить ключ в Связку ключей: %@"
+          }
+        }
+      }
+    },
+    "Denied": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запрещён"
+          }
+        }
+      }
+    },
+    "Enter an API key first.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сначала введите API-ключ."
+          }
+        }
+      }
+    },
+    "For example: “Put work meetings in the Work calendar. Title events in Russian. My time zone is Moscow unless stated otherwise.”": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Например: «Рабочие встречи — в календарь „Работа“. Названия событий — на русском. Мой часовой пояс — Москва, если не указано иное»."
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Основные"
+          }
+        }
+      }
+    },
+    "Get an API key": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получить API-ключ"
+          }
+        }
+      }
+    },
+    "Grant Access": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешить доступ"
+          }
+        }
+      }
+    },
     "Grant Calendar Access…": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Разрешить доступ к календарю…"
+          }
+        }
+      }
+    },
+    "Granted": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешён"
           }
         }
       }
@@ -101,12 +411,102 @@
         }
       }
     },
+    "Instruction (optional): “only meetings with Anna”, “remind me an hour before”": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструкция (необязательно): «только встречи с Аней», «напомни за час»"
+          }
+        }
+      }
+    },
+    "Launch at login": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запускать при входе"
+          }
+        }
+      }
+    },
+    "Local / compatible": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локальная / совместимая"
+          }
+        }
+      }
+    },
+    "Model": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Модель"
+          }
+        }
+      }
+    },
+    "Model ID": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Идентификатор модели"
+          }
+        }
+      }
+    },
+    "No internet connection.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет подключения к интернету."
+          }
+        }
+      }
+    },
     "No writable calendars": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Нет календарей, доступных для записи"
+          }
+        }
+      }
+    },
+    "Not available on this Mac.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Недоступна на этом Mac."
+          }
+        }
+      }
+    },
+    "Not requested yet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ещё не запрошен"
+          }
+        }
+      }
+    },
+    "On device": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На устройстве"
           }
         }
       }
@@ -121,6 +521,26 @@
         }
       }
     },
+    "Open Login Items": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть «Объекты входа»"
+          }
+        }
+      }
+    },
+    "Open Privacy Settings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки конфиденциальности"
+          }
+        }
+      }
+    },
     "Open Privacy Settings…": {
       "localizations": {
         "ru": {
@@ -131,32 +551,32 @@
         }
       }
     },
-    "Open calto…": {
+    "Open Settings": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Открыть calto…"
+            "value": "Открыть настройки"
           }
         }
       }
     },
-    "Optional instruction, e.g. “only meetings with Anna”, “remind me an hour before”": {
+    "Open calto": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Инструкция (необязательно), например «только встречи с Аней», «напомни за час»"
+            "value": "Открыть calto"
           }
         }
       }
     },
-    "Paste a screenshot (⌘V) or drop images here": {
+    "OpenAI-compatible (Ollama, LM Studio, OpenRouter…)": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вставьте скриншот (⌘V) или перетащите изображения сюда"
+            "value": "OpenAI-совместимый (Ollama, LM Studio, OpenRouter…)"
           }
         }
       }
@@ -171,6 +591,46 @@
         }
       }
     },
+    "Paste text or a screenshot, or drop an image…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте текст или скриншот, или перетащите изображение…"
+          }
+        }
+      }
+    },
+    "Paste your key": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте ключ"
+          }
+        }
+      }
+    },
+    "Prompt": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Промпт"
+          }
+        }
+      }
+    },
+    "Provider": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Провайдер"
+          }
+        }
+      }
+    },
     "Quit calto": {
       "localizations": {
         "ru": {
@@ -181,12 +641,12 @@
         }
       }
     },
-    "Ready to recognize: images — %lld, characters — %lld. Recognition arrives in the next stage.": {
+    "Ready to recognize: images — %lld, characters — %lld. Recognition arrives in the next version.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готово к распознаванию: изображений — %lld, символов — %lld. Распознавание появится на следующем этапе."
+            "value": "Готово к распознаванию: изображений — %lld, символов — %lld. Распознавание появится в следующей версии."
           }
         }
       }
@@ -201,6 +661,16 @@
         }
       }
     },
+    "Remove": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить"
+          }
+        }
+      }
+    },
     "Remove image": {
       "localizations": {
         "ru": {
@@ -211,12 +681,82 @@
         }
       }
     },
-    "Settings will appear in a later stage.": {
+    "Save": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Настройки появятся на одном из следующих этапов."
+            "value": "Сохранить"
+          }
+        }
+      }
+    },
+    "Saved in Keychain": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранён в Связке ключей"
+          }
+        }
+      }
+    },
+    "Secure connection failed. Use https:// for remote servers.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось установить защищённое соединение. Для удалённых серверов используйте https://."
+          }
+        }
+      }
+    },
+    "Server address": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес сервера"
+          }
+        }
+      }
+    },
+    "Set up a model in Settings first.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сначала настройте модель в настройках."
+          }
+        }
+      }
+    },
+    "Settings (⌘,)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки (⌘,)"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки…"
+          }
+        }
+      }
+    },
+    "Shortcut": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Горячая клавиша"
           }
         }
       }
@@ -231,12 +771,112 @@
         }
       }
     },
+    "Start calto automatically when you sign in.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматически запускать calto при входе в систему."
+          }
+        }
+      }
+    },
+    "Status": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Статус"
+          }
+        }
+      }
+    },
+    "System": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Система"
+          }
+        }
+      }
+    },
+    "The API key was rejected. Check that it was copied completely.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ключ отклонён. Проверьте, что он скопирован полностью."
+          }
+        }
+      }
+    },
     "The clipboard is empty.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Буфер обмена пуст."
+          }
+        }
+      }
+    },
+    "The model is still downloading. Try again later.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Модель ещё загружается. Попробуйте позже."
+          }
+        }
+      }
+    },
+    "The model must understand images to read screenshots.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы читать скриншоты, модель должна понимать изображения."
+          }
+        }
+      }
+    },
+    "The provider’s server returned an error (%lld). Try again later.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер провайдера вернул ошибку (%lld). Попробуйте позже."
+          }
+        }
+      }
+    },
+    "The server address is not valid. It should look like http://localhost:11434/v1.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неверный адрес сервера. Он должен выглядеть как http://localhost:11434/v1."
+          }
+        }
+      }
+    },
+    "The server didn’t respond in time.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер не ответил вовремя."
+          }
+        }
+      }
+    },
+    "The server’s response is not a model list. Check the server address.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ответ сервера — не список моделей. Проверьте адрес сервера."
           }
         }
       }
@@ -251,12 +891,82 @@
         }
       }
     },
+    "There is no model list at this address. Check the server address.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По этому адресу нет списка моделей. Проверьте адрес сервера."
+          }
+        }
+      }
+    },
+    "This Mac doesn’t support Apple Intelligence.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот Mac не поддерживает Apple Intelligence."
+          }
+        }
+      }
+    },
     "This image can’t be read.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Не удаётся прочитать изображение."
+          }
+        }
+      }
+    },
+    "This key has no access to the API. Check its permissions or your region.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У этого ключа нет доступа к API. Проверьте его права или ваш регион."
+          }
+        }
+      }
+    },
+    "This provider doesn’t offer a model list.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот провайдер не предоставляет список моделей."
+          }
+        }
+      }
+    },
+    "Too many requests. Try again in a minute.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слишком много запросов. Попробуйте через минуту."
+          }
+        }
+      }
+    },
+    "Turn on Apple Intelligence in System Settings to use this option.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы использовать этот вариант, включите Apple Intelligence в Системных настройках."
+          }
+        }
+      }
+    },
+    "Unexpected response from the server (HTTP %lld).": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неожиданный ответ сервера (HTTP %lld)."
           }
         }
       }
@@ -271,6 +981,56 @@
         }
       }
     },
+    "Your instructions": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваши инструкции"
+          }
+        }
+      }
+    },
+    "Your text and screenshots are sent only to this provider, using your own key.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст и скриншоты отправляются только этому провайдеру, с вашим собственным ключом."
+          }
+        }
+      }
+    },
+    "You’ll be able to change the shortcut in a later version.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить сочетание можно будет в одной из следующих версий."
+          }
+        }
+      }
+    },
+    "calto Settings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки calto"
+          }
+        }
+      }
+    },
+    "calto can only add events. Allow full access to check for conflicts and duplicates.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calto может только добавлять события. Разрешите полный доступ, чтобы проверять конфликты и дубликаты."
+          }
+        }
+      }
+    },
     "calto can’t read “%@”. Drag the file into the window instead.": {
       "localizations": {
         "ru": {
@@ -281,12 +1041,22 @@
         }
       }
     },
-    "…or paste or type the text of an invitation, chat or schedule": {
+    "calto needs access to your calendars to add events.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "…или вставьте либо введите текст приглашения, переписки или расписания"
+            "value": "calto нужен доступ к календарям, чтобы добавлять события."
+          }
+        }
+      }
+    },
+    "⌘V paste · ⌘↩ recognize · Esc close": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘V вставить · ⌘↩ распознать · Esc закрыть"
           }
         }
       }
