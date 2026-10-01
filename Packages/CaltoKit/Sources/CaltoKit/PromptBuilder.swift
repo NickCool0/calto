@@ -35,9 +35,16 @@ public enum PromptBuilder {
     ("remind me an hour before" → [60]; "remind me 15 and 30 minutes before" → [15, 30]; \
     "напомни за день и за час" → [1440, 60]). Otherwise null, and the user's default reminder is used.
     - recurrence: only when repetition is explicitly stated ("every Monday", "daily until June"); otherwise null.
-    - url: an online meeting link (Zoom, Google Meet, Teams, …) or the event's page, if present.
-    - title: short and specific, in the language of the source text. Put other useful details (agenda, dress \
-    code, phone numbers) into notes.
+    - url: the main link of the event (Zoom, Google Meet, Teams, a ticket, a chat message, the event page), if any.
+    - title: short and specific, in the language of the source text.
+    - notes: everything useful from the source that the title, time and location don't already say, copied \
+    verbatim rather than summarized: names and identifiers (servers, databases, tickets, order numbers), people, \
+    phone numbers, addresses, codes and passwords for entry, agenda, dress code, what to bring or prepare. \
+    Leave out only your own instructions from the user ("make a task for Monday at 10", "remind me an hour before").
+    - Never lose a link: every URL in the source must appear in notes, including the one also put into url. \
+    Some calendars (Exchange, Google) don't keep the url field, so notes are the only place it survives.
+    - With several events, each one gets its own details and links; from screenshots, keep what the chat, \
+    poster or ticket says about that event.
     - The user's standing instructions, if given, apply to every event unless the input says otherwise.
     """
 

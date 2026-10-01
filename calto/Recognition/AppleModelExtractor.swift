@@ -23,8 +23,9 @@ nonisolated struct AppleEvent {
     @Guide(description: "IANA time zone, only if the source states one explicitly.")
     var timeZone: String?
     var location: String?
-    @Guide(description: "Online meeting link or event page.")
+    @Guide(description: "The event's main link: online meeting, ticket, chat message or event page.")
     var url: String?
+    @Guide(description: "Every detail from the source not in the other fields, verbatim, including every URL.")
     var notes: String?
     @Guide(description: "Reminder offsets in minutes, only if reminders are explicitly requested.")
     var reminderMinutesBefore: [Int]?
