@@ -146,8 +146,8 @@ public enum ExtractionSchema {
             ("all_day", field("boolean")),
             ("time_zone", nullable("string", "IANA time zone, only if the source states one explicitly.")),
             ("location", nullable("string", "Place or address.")),
-            ("url", nullable("string", "Online meeting link or event page.")),
-            ("notes", nullable("string", "Other useful details from the source.")),
+            ("url", nullable("string", "The event's main link: online meeting, ticket, chat message or event page.")),
+            ("notes", nullable("string", "Every detail from the source not in the other fields, verbatim, including every URL.")),
             ("reminder_minutes_before", nullableArray(of: field("integer"), "Only if reminders are explicitly requested; otherwise null.")),
             ("recurrence", .object(["anyOf": .array([recurrence, field("null")])])),
             ("ambiguities", .object([

@@ -1331,12 +1331,12 @@
         }
       }
     },
-    "Start each event title with one emoji that fits its meaning, for example: 🚬 Smoke break, 🛒 Groceries, 💼 Meeting.": {
+    "Start each event title with the one emoji that best captures what this particular event is about, not its general category. Avoid generic 💻 📅 📝 💼 ✅ when a more specific one exists, and give different events different emoji. Examples: 🗑️ Delete the database, 🦷 Dentist, ✈️ Flight to Berlin, 🎂 Anna’s birthday, 🍝 Dinner with friends, 🏋️ Gym, 🚬 Smoke break, 🛒 Groceries, 📞 Call with the bank.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Начинай название каждого события с одного подходящего по смыслу эмодзи, например: 🚬 Покурить, 🛒 Магазин, 💼 Встреча."
+            "value": "Начинай название события с одного эмодзи, который точнее всего передаёт суть именно этого события, а не общую категорию. Избегай универсальных 💻 📅 📝 💼 ✅, если есть более точный, и давай разным событиям разные эмодзи. Примеры: 🗑️ Удалить БД, 🦷 Стоматолог, ✈️ Рейс в Берлин, 🎂 ДР Ани, 🍝 Ужин с друзьями, 🏋️ Зал, 🚬 Покурить, 🛒 Магазин, 📞 Созвон с банком."
           }
         }
       }

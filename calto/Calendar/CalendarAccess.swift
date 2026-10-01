@@ -191,7 +191,8 @@ final class CalendarAccess {
                 }
                 event.location = draft.location
                 event.url = draft.url
-                event.notes = draft.notes
+                // Exchange and Google drop the URL field, so the link also goes into the notes.
+                event.notes = draft.notesForSaving
 
                 let kind = self.calendar(withID: calendarID)?.capabilities ?? CalendarCapabilities(maxAlarms: nil)
                 let alarms = kind.limitingAlarms(draft.alarms).kept

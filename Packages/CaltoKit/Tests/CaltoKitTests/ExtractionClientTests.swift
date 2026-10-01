@@ -227,6 +227,15 @@ struct PromptBuilderTests {
         #expect(prompt.system.contains("default reminder"))
     }
 
+    @Test("Rules keep every detail and every link in the notes")
+    func notesRules() {
+        let prompt = PromptBuilder.build(for: request)
+        #expect(prompt.system.contains("every URL in the source must appear in notes"))
+        #expect(prompt.system.contains("verbatim"))
+        let notes = ExtractionSchema.jsonSchema["properties"]?["events"]?["items"]?["properties"]?["notes"]
+        #expect(notes?.jsonString.contains("every URL") == true)
+    }
+
     @Test("JSON-only mode spells out the schema in the system prompt")
     func schemaInPrompt() {
         let prompt = PromptBuilder.build(for: request, imageCount: 2, includeSchema: true)

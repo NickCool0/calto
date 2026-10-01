@@ -69,8 +69,14 @@ final class AppSettings {
 
     /// Suggested standing instructions for new users, in the interface language.
     static var defaultCustomPrompt: String {
-        String(localized: "Start each event title with one emoji that fits its meaning, for example: 🚬 Smoke break, 🛒 Groceries, 💼 Meeting.")
+        String(localized: "Start each event title with the one emoji that best captures what this particular event is about, not its general category. Avoid generic 💻 📅 📝 💼 ✅ when a more specific one exists, and give different events different emoji. Examples: 🗑️ Delete the database, 🦷 Dentist, ✈️ Flight to Berlin, 🎂 Anna’s birthday, 🍝 Dinner with friends, 🏋️ Gym, 🚬 Smoke break, 🛒 Groceries, 📞 Call with the bank.")
     }
+
+    /// Earlier default prompts, replaced by the current one unless the user wrote their own.
+    private static let legacyDefaultPrompts: Set<String> = [
+        "Start each event title with one emoji that fits its meaning, for example: 🚬 Smoke break, 🛒 Groceries, 💼 Meeting.",
+        "Начинай название каждого события с одного подходящего по смыслу эмодзи, например: 🚬 Покурить, 🛒 Магазин, 💼 Встреча.",
+    ]
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -78,7 +84,8 @@ final class AppSettings {
         provider = storedProvider.flatMap { LLMProvider.selectable.contains($0) ? $0 : nil } ?? .anthropic
         compatibleBaseURL = defaults.string(forKey: Key.compatibleBaseURL)
             ?? LLMProvider.openAICompatible.defaultBaseURL?.absoluteString ?? ""
-        customPrompt = defaults.string(forKey: Key.customPrompt) ?? Self.defaultCustomPrompt
+        let storedPrompt = defaults.string(forKey: Key.customPrompt)
+        customPrompt = storedPrompt.flatMap { Self.legacyDefaultPrompts.contains($0) ? nil : $0 } ?? Self.defaultCustomPrompt
         modelsByProvider = defaults.dictionary(forKey: Key.models) as? [String: String] ?? [:]
         defaultCalendarID = defaults.string(forKey: Key.defaultCalendarID)
         let reminder = defaults.object(forKey: Key.defaultReminder) as? Int ?? 15

@@ -55,6 +55,28 @@ public struct EventDraft: Sendable, Hashable, Codable, Identifiable {
         self.ambiguities = ambiguities
         self.issues = issues
     }
+
+    /// The notes written to the calendar: the notes plus the link, unless the notes already contain it.
+    /// Exchange and Google don't keep an event's URL field, so the link must also live in the notes.
+    public var notesForSaving: String? {
+        let notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard let link = url?.absoluteString, !Self.text(notes, mentions: link) else {
+            return notes.isEmpty ? nil : notes
+        }
+        return notes.isEmpty ? link : "\(notes)\n\n\(link)"
+    }
+
+    /// Also matches the link written without its scheme or trailing slash ("zoom.us/j/1" for https://zoom.us/j/1).
+    static func text(_ text: String, mentions link: String) -> Bool {
+        var bare = link
+        for scheme in ["https://", "http://"] where bare.lowercased().hasPrefix(scheme) {
+            bare.removeFirst(scheme.count)
+        }
+        while bare.hasSuffix("/") {
+            bare.removeLast()
+        }
+        return text.localizedCaseInsensitiveContains(bare.isEmpty ? link : bare)
+    }
 }
 
 /// A reminder relative to the event start.
