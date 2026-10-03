@@ -50,7 +50,9 @@ an AI model of your choice finds the events; you check them and add them to any 
 - 📋 **Paste anything**: screenshots, images and text with <kbd>⌘</kbd><kbd>V</kbd>, or drag them onto the popover.
 - 🧠 **Bring your own AI**: Claude, GPT, Gemini, any OpenAI-compatible server (Ollama, LM Studio, OpenRouter) or Apple's on-device model.
 - 🗓️ **Understands dates like a person**: "tomorrow at 1 pm", "every Monday until June", time zones, all-day events, reminders, meeting links.
-- ✅ **Nothing is saved without you**: review every event, fix any field, pick the calendar, then add. Undo is one click.
+- ✅ **Review or automatic**: check every event before it's added, or let clear ones go straight in (⚡ in the popover). Anything doubtful is still shown for review; Undo and Edit are one click.
+- 🔗 **Nothing gets lost**: your typed text and the screenshots are both used; every detail goes into the description, and every link is listed under it, even if the model forgets one.
+- 🕘 **History**: a separate window with what you sent, what was recognized and what you changed before saving.
 - ⚠️ **Flags what's uncertain**: ambiguous dates, time conflicts, likely duplicates and Exchange's one-reminder limit.
 - ☁️ **Every calendar you already have**: iCloud, Google, Exchange: whatever is set up in Apple Calendar.
 - 🔒 **Private by design**: no telemetry, no backend; keys in the Keychain; screenshots can stay on your Mac.
@@ -100,6 +102,8 @@ macOS 27 on Apple silicon.
 | Click the menu bar icon | Open calto · right-click for the menu |
 | <kbd>⌘</kbd><kbd>V</kbd> | Paste a screenshot, image or text |
 | <kbd>⌘</kbd><kbd>↩</kbd> | Create events (the ↑ button) · add the reviewed events |
+| <kbd>⌘</kbd><kbd>Y</kbd> | History |
+| <kbd>⌘</kbd><kbd>Z</kbd> | Undo the events just added |
 | <kbd>⌘</kbd><kbd>,</kbd> | Settings |
 | <kbd>Esc</kbd> | Close (your input is kept) |
 
@@ -152,6 +156,9 @@ In calto: **Settings → Model → OpenAI-compatible**, address `http://localhos
 - **Settings → Model → Always read screenshots on this Mac** recognizes text locally with Vision and
   sends only the text.
 - **Calendar data never leaves your Mac.** It's read only to warn about conflicts and duplicates.
+- **History stays on your Mac**: your requests, small thumbnails of screenshots and the created events.
+  Choose how long it's kept, or turn it off, in **Settings → General → History**.
+- **Links on screenshots are found locally** (Vision) so none is lost; this text isn't sent anywhere.
 
 ## FAQ
 
@@ -212,7 +219,8 @@ Quit calto and move it to the Trash. To remove its data too: delete the `calto:`
 - [x] Settings: providers, API keys in the Keychain, model list, your own prompt, defaults
 - [x] Recognition with Claude, OpenAI, Gemini, OpenAI-compatible servers and Apple's on-device model
 - [x] Review screen with conflict and duplicate warnings; undo
-- [ ] History of recognized and created events
+- [x] Automatic or review mode; edit and undo after adding
+- [x] History of requests, recognized and created events
 - [ ] Customizable global shortcut
 - [ ] Screenshots in this README
 
