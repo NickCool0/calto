@@ -86,4 +86,13 @@ struct ImageNormalizerTests {
             try ImageNormalizer.normalize(Data("not an image".utf8))
         }
     }
+
+    @Test("History thumbnails are small JPEGs")
+    func thumbnail() throws {
+        let png = try encode(makeImage(width: 1600, height: 900), as: .png)
+        let thumbnail = try #require(ImageNormalizer.thumbnail(png))
+        let props = try properties(of: thumbnail)
+        #expect(props[kCGImagePropertyPixelWidth] as? Int == 400)
+        #expect(ImageNormalizer.thumbnail(Data([1, 2, 3])) == nil)
+    }
 }

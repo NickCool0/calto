@@ -21,6 +21,46 @@
         }
       }
     },
+    "%lld events": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Событий: %lld"
+          }
+        }
+      }
+    },
+    "1 year": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 год"
+          }
+        }
+      }
+    },
+    "30 days": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 дней"
+          }
+        }
+      }
+    },
+    "7 days": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 дней"
+          }
+        }
+      }
+    },
     "API key": {
       "localizations": {
         "ru": {
@@ -81,6 +121,16 @@
         }
       }
     },
+    "Add automatically": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлять автоматически"
+          }
+        }
+      }
+    },
     "Add to Calendar (%lld)": {
       "localizations": {
         "ru": {
@@ -101,6 +151,36 @@
         }
       }
     },
+    "Added": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено"
+          }
+        }
+      }
+    },
+    "Added automatically": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено автоматически"
+          }
+        }
+      }
+    },
+    "Added to Calendar: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено в Календарь: %lld"
+          }
+        }
+      }
+    },
     "Added to every request, together with what you type in the popup.": {
       "localizations": {
         "ru": {
@@ -111,12 +191,42 @@
         }
       }
     },
+    "Adding automatically: clear events go straight to the calendar. Click to review every event first.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматическое добавление: понятные события сразу попадают в календарь. Нажмите, чтобы проверять каждое событие."
+          }
+        }
+      }
+    },
+    "Adding events": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавление событий"
+          }
+        }
+      }
+    },
     "After each calto update macOS asks once for the Keychain password to read the key. Choose “Always Allow” so it doesn’t ask again.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "После каждого обновления calto macOS один раз спрашивает пароль связки ключей, чтобы прочитать ключ. Выберите «Разрешать всегда», чтобы она больше не спрашивала."
+          }
+        }
+      }
+    },
+    "All": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все"
           }
         }
       }
@@ -157,6 +267,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Всегда распознавать скриншоты на этом Mac"
+          }
+        }
+      }
+    },
+    "And %lld more": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "И ещё %lld"
           }
         }
       }
@@ -207,6 +327,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "В момент начала"
+          }
+        }
+      }
+    },
+    "Automatic mode adds clear events right away, with Undo. If anything is unclear — the date, a conflict, a likely duplicate — the events are shown for review anyway. You can also switch the mode with the button at the bottom of the popover.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В автоматическом режиме понятные события добавляются сразу, с возможностью отменить. Если что-то неясно — дата, пересечение, вероятный дубликат, — события всё равно показываются для проверки. Режим можно переключить и кнопкой внизу окна calto."
           }
         }
       }
@@ -371,12 +501,32 @@
         }
       }
     },
+    "Check before adding": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверьте перед добавлением"
+          }
+        }
+      }
+    },
     "Choose a calendar": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Выберите календарь"
+          }
+        }
+      }
+    },
+    "Choose a calendar for the events.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите календарь для событий."
           }
         }
       }
@@ -397,6 +547,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Очистить"
+          }
+        }
+      }
+    },
+    "Clear History": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить историю"
+          }
+        }
+      }
+    },
+    "Clear History…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить историю…"
+          }
+        }
+      }
+    },
+    "Clear the whole history?": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить всю историю?"
           }
         }
       }
@@ -521,6 +701,46 @@
         }
       }
     },
+    "Delete Event": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить событие"
+          }
+        }
+      }
+    },
+    "Delete from Calendar…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить из Календаря…"
+          }
+        }
+      }
+    },
+    "Delete from History": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить из истории"
+          }
+        }
+      }
+    },
+    "Delete “%@” from your calendar?": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить «%@» из календаря?"
+          }
+        }
+      }
+    },
     "Denied": {
       "localizations": {
         "ru": {
@@ -551,6 +771,36 @@
         }
       }
     },
+    "Edit": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить"
+          }
+        }
+      }
+    },
+    "Edit Events": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменение событий"
+          }
+        }
+      }
+    },
+    "Edited before saving": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменено перед сохранением"
+          }
+        }
+      }
+    },
     "End": {
       "localizations": {
         "ru": {
@@ -571,12 +821,52 @@
         }
       }
     },
-    "Events added: %lld": {
+    "Error": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Добавлено событий: %lld"
+            "value": "Ошибка"
+          }
+        }
+      }
+    },
+    "Errors": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ошибки"
+          }
+        }
+      }
+    },
+    "Event %lld has no title.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У события %lld нет названия."
+          }
+        }
+      }
+    },
+    "Events in your calendars are not affected.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "События в календарях не затрагиваются."
+          }
+        }
+      }
+    },
+    "Events: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "События: %lld"
           }
         }
       }
@@ -631,12 +921,32 @@
         }
       }
     },
-    "Found: %lld": {
+    "Forever": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найдено: %lld"
+            "value": "Бессрочно"
+          }
+        }
+      }
+    },
+    "From the screenshots": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Со скриншотов"
+          }
+        }
+      }
+    },
+    "From your text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из вашего текста"
           }
         }
       }
@@ -691,6 +1001,46 @@
         }
       }
     },
+    "History": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История"
+          }
+        }
+      }
+    },
+    "History (⌘Y)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История (⌘Y)"
+          }
+        }
+      }
+    },
+    "History is turned off in Settings.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История выключена в настройках."
+          }
+        }
+      }
+    },
+    "History…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История…"
+          }
+        }
+      }
+    },
     "Images": {
       "localizations": {
         "ru": {
@@ -721,6 +1071,16 @@
         }
       }
     },
+    "Keep history": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранить историю"
+          }
+        }
+      }
+    },
     "Language": {
       "localizations": {
         "ru": {
@@ -747,6 +1107,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ссылка"
+          }
+        }
+      }
+    },
+    "Links": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ссылки"
           }
         }
       }
@@ -787,6 +1157,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mock (для разработки)"
+          }
+        }
+      }
+    },
+    "Mode": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Режим"
           }
         }
       }
@@ -841,12 +1221,32 @@
         }
       }
     },
+    "No events found": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Событий не найдено"
+          }
+        }
+      }
+    },
     "No events found. Try adding details or an instruction.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "События не найдены. Добавьте подробности или инструкцию."
+          }
+        }
+      }
+    },
+    "No events were found.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "События не найдены."
           }
         }
       }
@@ -871,6 +1271,16 @@
         }
       }
     },
+    "No requests yet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запросов пока нет"
+          }
+        }
+      }
+    },
     "No writable calendars": {
       "localizations": {
         "ru": {
@@ -887,6 +1297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нет"
+          }
+        }
+      }
+    },
+    "Not added": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не добавлено"
           }
         }
       }
@@ -927,6 +1347,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ничего не сохранится, пока вы не добавите события."
+          }
+        }
+      }
+    },
+    "Nothing was typed.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст не вводился."
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вести"
           }
         }
       }
@@ -1007,6 +1447,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Открыть calto"
+          }
+        }
+      }
+    },
+    "Open in Calendar": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть в Календаре"
           }
         }
       }
@@ -1111,6 +1561,16 @@
         }
       }
     },
+    "Put the text and screenshots back into the popover": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуть текст и скриншоты в окно calto"
+          }
+        }
+      }
+    },
     "Quit calto": {
       "localizations": {
         "ru": {
@@ -1137,6 +1597,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Читаю API-ключ… Если macOS спросит пароль связки ключей, выберите «Разрешать всегда»."
+          }
+        }
+      }
+    },
+    "Recognized → Saved": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознано → Сохранено"
           }
         }
       }
@@ -1181,12 +1651,72 @@
         }
       }
     },
+    "Remove these events from the calendar (⌘Z)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить эти события из календаря (⌘Z)"
+          }
+        }
+      }
+    },
+    "Removed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалено"
+          }
+        }
+      }
+    },
+    "Removed from Calendar": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалено из Календаря"
+          }
+        }
+      }
+    },
+    "Repeat Request": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить запрос"
+          }
+        }
+      }
+    },
     "Repeat rule “%@” isn’t supported and was dropped.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Правило повторения «%@» не поддерживается и пропущено."
+          }
+        }
+      }
+    },
+    "Request": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запрос"
+          }
+        }
+      }
+    },
+    "Requests you send from the popover appear here.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Здесь появятся запросы, отправленные из окна calto."
           }
         }
       }
@@ -1211,6 +1741,36 @@
         }
       }
     },
+    "Review before adding": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверять перед добавлением"
+          }
+        }
+      }
+    },
+    "Reviewed before adding": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверено перед добавлением"
+          }
+        }
+      }
+    },
+    "Reviewing before adding. Click to add clear events automatically.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка перед добавлением. Нажмите, чтобы понятные события добавлялись автоматически."
+          }
+        }
+      }
+    },
     "Same as System": {
       "localizations": {
         "ru": {
@@ -1231,6 +1791,26 @@
         }
       }
     },
+    "Save Changes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить изменения"
+          }
+        }
+      }
+    },
+    "Saved as recognized": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранено как распознано"
+          }
+        }
+      }
+    },
     "Saved in Keychain": {
       "localizations": {
         "ru": {
@@ -1241,12 +1821,52 @@
         }
       }
     },
+    "Screenshot": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скриншот"
+          }
+        }
+      }
+    },
+    "Search requests and events": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поиск по запросам и событиям"
+          }
+        }
+      }
+    },
     "Secure connection failed. Use https:// for remote servers.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Не удалось установить защищённое соединение. Для удалённых серверов используйте https://."
+          }
+        }
+      }
+    },
+    "See what you sent, what was recognized and what you changed.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что вы отправили, что распознано и что вы поправили."
+          }
+        }
+      }
+    },
+    "Select a request": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите запрос"
           }
         }
       }
@@ -1267,6 +1887,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сначала настройте модель в настройках."
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки"
           }
         }
       }
@@ -1307,6 +1937,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сочетание %@ занято другим приложением"
+          }
+        }
+      }
+    },
+    "Show": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать"
           }
         }
       }
@@ -1437,6 +2077,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "У события нет названия."
+          }
+        }
+      }
+    },
+    "The event is removed from Calendar on all your devices. This can’t be undone.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Событие будет удалено из Календаря на всех ваших устройствах. Это нельзя отменить."
           }
         }
       }
@@ -1661,6 +2311,26 @@
         }
       }
     },
+    "Title was “%@”": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название было «%@»"
+          }
+        }
+      }
+    },
+    "Today": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня"
+          }
+        }
+      }
+    },
     "Too many requests. Try again in a minute.": {
       "localizations": {
         "ru": {
@@ -1691,6 +2361,16 @@
         }
       }
     },
+    "Undone": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменено"
+          }
+        }
+      }
+    },
     "Unexpected response from the server (HTTP %lld).": {
       "localizations": {
         "ru": {
@@ -1711,12 +2391,42 @@
         }
       }
     },
+    "Untitled": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без названия"
+          }
+        }
+      }
+    },
     "Used when the text doesn’t mention them. You can change everything before adding events.": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Используется, если в тексте этого нет. Перед добавлением всё можно изменить."
+          }
+        }
+      }
+    },
+    "Was: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Было: %@"
+          }
+        }
+      }
+    },
+    "What the model read": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что прочитала модель"
           }
         }
       }
@@ -1731,6 +2441,16 @@
         }
       }
     },
+    "Yesterday": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вчера"
+          }
+        }
+      }
+    },
     "You can add up to %lld images.": {
       "localizations": {
         "ru": {
@@ -1741,12 +2461,32 @@
         }
       }
     },
+    "You sent": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы отправили"
+          }
+        }
+      }
+    },
     "Your instructions": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Ваши инструкции"
+          }
+        }
+      }
+    },
+    "Your requests, small thumbnails of screenshots and the events created are stored only on this Mac.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваши запросы, маленькие миниатюры скриншотов и созданные события хранятся только на этом Mac."
           }
         }
       }
@@ -1857,6 +2597,66 @@
           "stringUnit": {
             "state": "translated",
             "value": "до %@"
+          }
+        }
+      }
+    },
+    "“%@” may already be in your calendar as “%@”.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@», возможно, уже есть в календаре как «%@»."
+          }
+        }
+      }
+    },
+    "“%@” overlaps with “%@”.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» пересекается с «%@»."
+          }
+        }
+      }
+    },
+    "“%@”: the date couldn’t be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@»: не удалось прочитать дату."
+          }
+        }
+      }
+    },
+    "“%@”: this calendar keeps only one reminder.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@»: этот календарь хранит только одно напоминание."
+          }
+        }
+      }
+    },
+    "💬 Context:": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💬 Контекст:"
+          }
+        }
+      }
+    },
+    "🔗 Links:": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔗 Ссылки:"
           }
         }
       }

@@ -43,6 +43,22 @@ public enum ImageNormalizer {
         return ImageAttachment(data: jpeg, contentType: .jpeg, pixelWidth: image.width, pixelHeight: image.height)
     }
 
+    /// A small JPEG for the history list, so a request can be recognized without keeping the screenshot.
+    public static func thumbnail(_ data: Data, maxPixelSize: Int = 400) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil), CGImageSourceGetCount(source) > 0 else {
+            return nil
+        }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+        return encode(image, as: .jpeg, quality: 0.7)
+    }
+
     static func encode(_ image: CGImage, as type: UTType, quality: Double? = nil) -> Data? {
         let output = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(output as CFMutableData, type.identifier as CFString, 1, nil) else {

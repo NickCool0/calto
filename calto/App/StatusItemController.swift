@@ -90,6 +90,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         if hotKey.registrationError != nil {
             menu.addItem(infoItem(String(localized: "Shortcut \(hotKey.combo.displayString) is taken by another app")))
         }
+        menu.addItem(actionItem(String(localized: "History…"), action: #selector(openHistory), keyEquivalent: "y"))
         menu.addItem(actionItem(String(localized: "Settings…"), action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
         addCalendarItems(to: menu)
@@ -176,6 +177,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     @objc private func openInput() {
         popover.show()
+    }
+
+    @objc private func openHistory() {
+        popover.close()
+        context.openHistory()
     }
 
     @objc private func openSettings() {

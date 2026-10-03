@@ -66,4 +66,40 @@ nonisolated enum KeychainStore {
             throw Failure(status: status)
         }
     }
+
+    // MARK: All keys in one item
+
+    /// Every provider's key lives in this one item, so macOS asks for the Keychain password at most once
+    /// (each item has its own access list, and an ad-hoc signed update is a new app to all of them).
+    static let allKeysAccount = "api-keys"
+
+    /// Reads all keys. Keys from calto 0.6 and earlier (one item per provider) are moved into the shared
+    /// item on first use; macOS may ask once for each of those old items.
+    static func loadAllKeys(legacyAccounts: [String]) throws -> [String: String] {
+        if let json = try read(account: allKeysAccount) {
+            return (try? JSONDecoder().decode([String: String].self, from: Data(json.utf8))) ?? [:]
+        }
+        var keys: [String: String] = [:]
+        for account in legacyAccounts {
+            if let key = try read(account: account), !key.isEmpty {
+                keys[account] = key
+            }
+        }
+        if !keys.isEmpty {
+            try saveAllKeys(keys)
+            for account in keys.keys {
+                try? delete(account: account)
+            }
+        }
+        return keys
+    }
+
+    static func saveAllKeys(_ keys: [String: String]) throws {
+        if keys.isEmpty {
+            try delete(account: allKeysAccount)
+            return
+        }
+        let data = try JSONEncoder().encode(keys)
+        try save(String(decoding: data, as: UTF8.self), account: allKeysAccount)
+    }
 }

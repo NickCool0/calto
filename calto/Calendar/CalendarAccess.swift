@@ -172,35 +172,25 @@ final class CalendarAccess {
         }
     }
 
-    /// Saves the events in one commit and returns their identifiers, for undo.
-    func save(_ events: [(draft: EventDraft, calendarID: String)]) throws -> [String] {
+    /// One event to write: a new one, or an existing one (`eventIdentifier`) to update after edits.
+    struct EventWrite {
+        var draft: EventDraft
+        var calendarID: String
+        var eventIdentifier: String?
+    }
+
+    /// Writes the events in one commit and returns their identifiers in the same order, for undo.
+    func save(_ writes: [EventWrite]) throws -> [String] {
         var saved: [EKEvent] = []
         do {
-            for (draft, calendarID) in events {
-                guard let calendar = store.calendar(withIdentifier: calendarID) else {
+            for write in writes {
+                guard let calendar = store.calendar(withIdentifier: write.calendarID) else {
                     throw CalendarWriteError.calendarMissing
                 }
-                let event = EKEvent(eventStore: store)
+                let event = write.eventIdentifier.flatMap { store.event(withIdentifier: $0) } ?? EKEvent(eventStore: store)
                 event.calendar = calendar
-                event.title = draft.title
-                event.isAllDay = draft.isAllDay
-                event.startDate = draft.start
-                event.endDate = draft.end
-                if let zone = draft.timeZone, !draft.isAllDay {
-                    event.timeZone = zone
-                }
-                event.location = draft.location
-                event.url = draft.url
-                // Exchange and Google drop the URL field, so the link also goes into the notes.
-                event.notes = draft.notesForSaving
-
-                let kind = self.calendar(withID: calendarID)?.capabilities ?? CalendarCapabilities(maxAlarms: nil)
-                let alarms = kind.limitingAlarms(draft.alarms).kept
-                event.alarms = alarms.map { EKAlarm(relativeOffset: -TimeInterval($0.minutesBefore * 60)) }
-                if let recurrence = draft.recurrence {
-                    event.recurrenceRules = [Self.rule(for: recurrence)]
-                }
-                try store.save(event, span: .thisEvent, commit: false)
+                apply(write.draft, to: event, calendarID: write.calendarID)
+                try store.save(event, span: write.draft.recurrence == nil ? .thisEvent : .futureEvents, commit: false)
                 saved.append(event)
             }
             try store.commit()
@@ -209,6 +199,41 @@ final class CalendarAccess {
             throw error
         }
         return saved.compactMap(\.eventIdentifier)
+    }
+
+    private func apply(_ draft: EventDraft, to event: EKEvent, calendarID: String) {
+        event.title = draft.title
+        event.isAllDay = draft.isAllDay
+        event.startDate = draft.start
+        event.endDate = draft.end
+        event.timeZone = draft.isAllDay ? nil : (draft.timeZone ?? .current)
+        event.location = draft.location
+        event.url = draft.url
+        // Exchange and Google drop the URL field, so the link also goes into the notes.
+        event.notes = draft.notesForSaving
+
+        let kind = calendar(withID: calendarID)?.capabilities ?? CalendarCapabilities(maxAlarms: nil)
+        let alarms = kind.limitingAlarms(draft.alarms).kept
+        event.alarms = alarms.map { EKAlarm(relativeOffset: -TimeInterval($0.minutesBefore * 60)) }
+        event.recurrenceRules = draft.recurrence.map { [Self.rule(for: $0)] }
+    }
+
+    /// Whether the event still exists (it may have been deleted in Calendar since).
+    func eventExists(_ identifier: String) -> Bool {
+        store.event(withIdentifier: identifier) != nil
+    }
+
+    /// Shows the event in Calendar; falls back to just opening Calendar.
+    func openInCalendar(eventIdentifier: String?) {
+        if let eventIdentifier,
+           let encoded = eventIdentifier.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+           let url = URL(string: "ical://ekevent/\(encoded)?method=show&options=more"),
+           NSWorkspace.shared.open(url) {
+            return
+        }
+        if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
+            NSWorkspace.shared.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
+        }
     }
 
     /// Undo: deletes events calto just created (the whole series for recurring ones).

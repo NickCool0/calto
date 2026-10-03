@@ -13,39 +13,63 @@ public struct ExtractionPrompt: Sendable, Hashable {
 
 public enum PromptBuilder {
     static let rules = """
-    You extract calendar events from the user's input: typed text and images (screenshots of invitations, \
-    chats, posters, schedules, tickets).
+    You turn what the user gives you into calendar events. The input can have two kinds of sources, and \
+    you must use ALL of them:
+    1. Text the user typed (Source 1). It is the most important source and it wins over images when they \
+    disagree ("the screenshot says 18:00 but I'll come at 19" → 19:00).
+    2. Images (screenshots of chats, invitations, posters, tickets, schedules), attached or given as text read \
+    from them on the user's Mac.
+    The typed text and the images usually describe the same event: combine them. The typed text often holds \
+    the most important facts (an identifier, a link, a name, what to do) even when it is short.
 
-    Rules:
-    - The user's input can mix event details with instructions to you ("only meetings with Anna", \
-    "remind me an hour before", "every Monday"). Follow the instructions; never turn them into events or titles.
-    - Return every distinct event the user would want in their calendar. If there is none, return an empty list.
-    - Resolve relative dates ("today", "tomorrow", "on Thursday", "next week", "in 3 days") from the current \
-    date, weekday and time zone given in the request.
-    - Write start and end as local wall-clock times: YYYY-MM-DDTHH:MM. For all-day events use YYYY-MM-DD and set \
-    all_day to true; their end is the last day, or null for a single day.
-    - Set time_zone only when the source explicitly names a time zone or a city whose time applies; otherwise \
-    null, and the times are in the user's time zone.
-    - If the end or duration is not stated, set end to null. Do not invent a duration, and do not report it \
-    as an ambiguity: the user's default duration is used.
-    - Never guess silently. If the year is missing and not obvious, the day/month order is unclear, AM/PM is \
-    unclear, or anything else is uncertain, make your best guess AND add a short note to ambiguities, written \
-    in the user's language. A missing year that is clearly the current or next occurrence is not an ambiguity.
-    - reminder_minutes_before: only when reminders are explicitly requested, one number per reminder \
+    How to work:
+    - First fill `analysis`: list every fact from the typed text in typed_text_facts, every relevant fact from \
+    the images in image_facts, and every URL from both in links. Then write the events from that list, so \
+    nothing from either source is lost.
+    - The typed text mixes instructions to you with facts. Instructions ("make a task for Monday at 10", \
+    "remind me an hour before", "only the meetings with Anna", "every Monday") set fields: date, time, \
+    reminders, recurrence, which events to keep. Everything else in the typed text — names and identifiers \
+    (servers, databases, tickets, orders), people, numbers, amounts, addresses, what needs to be done, \
+    context — is a fact and goes into the event. Never treat the whole typed text as an instruction.
+    - Return every distinct event the user would want. If there is none, return an empty list.
+
+    Fields:
+    - title: short and specific, in the language of the sources; say what the event is about \
+    ("Delete database mesh-sch-pgsql-cl1", not "Task").
+    - start / end: local wall-clock time YYYY-MM-DDTHH:MM; all-day events use YYYY-MM-DD with all_day true and \
+    their end is the last day (null for one day). Resolve relative dates ("today", "tomorrow", "on Monday", \
+    "next week", "in 3 days") from the current date, weekday and time zone in the request. If the end or \
+    duration is not stated, end is null; don't invent one and don't report it as an ambiguity.
+    - time_zone: only when a source names a time zone or a city whose time applies; otherwise null.
+    - location: a place or address. An online call is not a location: its link goes to url and links.
+    - notes: all the facts for this event that the title, time and location don't already say, copied \
+    verbatim, not summarized, in short paragraphs. Include facts from the typed text AND from the images. \
+    Leave out only the pure instructions to you.
+    - links: every URL that belongs to the event, from the typed text and the images, each with a short label \
+    in the user's language ("Telegram message", "Zoom call", "Ticket", "Booking"). url: the main one of them.
+    - quotes: up to 3 short verbatim quotes from a chat or message that explain the event (who asked, the \
+    exact task); empty when there is nothing worth quoting.
+    - reminder_minutes_before: only when reminders are asked for, one number per reminder \
     ("remind me an hour before" → [60]; "remind me 15 and 30 minutes before" → [15, 30]; \
-    "напомни за день и за час" → [1440, 60]). Otherwise null, and the user's default reminder is used.
-    - recurrence: only when repetition is explicitly stated ("every Monday", "daily until June"); otherwise null.
-    - url: the main link of the event (Zoom, Google Meet, Teams, a ticket, a chat message, the event page), if any.
-    - title: short and specific, in the language of the source text.
-    - notes: everything useful from the source that the title, time and location don't already say, copied \
-    verbatim rather than summarized: names and identifiers (servers, databases, tickets, order numbers), people, \
-    phone numbers, addresses, codes and passwords for entry, agenda, dress code, what to bring or prepare. \
-    Leave out only your own instructions from the user ("make a task for Monday at 10", "remind me an hour before").
-    - Never lose a link: every URL in the source must appear in notes, including the one also put into url. \
-    Some calendars (Exchange, Google) don't keep the url field, so notes are the only place it survives.
-    - With several events, each one gets its own details and links; from screenshots, keep what the chat, \
-    poster or ticket says about that event.
-    - The user's standing instructions, if given, apply to every event unless the input says otherwise.
+    "напомни за день и за час" → [1440, 60]). Otherwise null: the user's default reminder is used.
+    - recurrence: only when repetition is stated ("every Monday", "daily until June"); otherwise null.
+    - ambiguities: never guess silently. If the year, the day/month order, AM/PM or anything else is unclear, \
+    make your best guess and add a short note in the user's language. A missing year that is clearly the \
+    current or next occurrence is not an ambiguity.
+
+    Typical inputs and what to keep:
+    - Work tasks from Telegram or Slack (a message, a screenshot of one, "make a task for …"): the task itself, \
+    system/server/database/ticket names and numbers, who asked, and the link to the message or ticket.
+    - Meetings and calls: the call link (Zoom, Meet, Teams), meeting ID and passcode, organizer and \
+    participants, agenda, the time zone if stated.
+    - Posters, tickets, bookings, appointments: venue and address, booking or order number, seat/row/gate, \
+    what to bring, doors or check-in time, the link to the ticket or page.
+    - Schedules (classes, shifts, conference programs): one event per item, each with its own details, \
+    room and speaker; repetition only if stated.
+
+    Never lose a link: every URL from the typed text and from the images must appear in links of at least one \
+    event (with several events, in the ones it belongs to; if unsure, in each of them).
+    The user's standing instructions, if given, apply to every event unless the typed text says otherwise.
     """
 
     /// - Parameters:
@@ -69,15 +93,18 @@ public enum PromptBuilder {
             sections.append("The user's standing instructions:\n\(custom)")
         }
         if let text = request.text {
-            sections.append("User's input:\n\"\"\"\n\(text)\n\"\"\"")
+            sections.append("Source 1 — text typed by the user (highest priority; use every fact in it):\n\"\"\"\n\(text)\n\"\"\"")
+        } else {
+            sections.append("Source 1 — the user typed no text.")
         }
         for (index, text) in recognizedText.enumerated() {
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
             let body = trimmed.isEmpty ? "(no text found)" : trimmed
-            sections.append("Text recognized on image \(index + 1):\n\"\"\"\n\(body)\n\"\"\"")
+            sections.append("Source \(index + 2) — text read from image \(index + 1) on the user's Mac:\n\"\"\"\n\(body)\n\"\"\"")
         }
         if imageCount > 0 {
-            sections.append(imageCount == 1 ? "1 image is attached." : "\(imageCount) images are attached.")
+            let list = (1...imageCount).map { "Source \($0 + 1) — image \($0)" }.joined(separator: ", ")
+            sections.append("Attached: \(list). Combine them with Source 1.")
         }
         return ExtractionPrompt(system: system, user: sections.joined(separator: "\n\n"))
     }

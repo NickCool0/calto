@@ -23,6 +23,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.onActivityChanged = { [weak statusItem] busy in
             statusItem?.setBusy(busy)
         }
+        context.repeatRequest = { [weak popover] text, images in
+            popover?.restore(text: text, images: images)
+        }
         self.hotKey = hotKey
         statusItemController = statusItem
         registerHotKeyAfterPreviousCopyQuits()

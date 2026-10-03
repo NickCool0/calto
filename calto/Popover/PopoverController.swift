@@ -20,12 +20,15 @@ final class PopoverController: NSObject, NSPopoverDelegate {
 
     init(context: AppContext) {
         self.context = context
-        model = PopoverModel(settings: context.settings, calendarAccess: context.calendarAccess)
+        model = PopoverModel(settings: context.settings, calendarAccess: context.calendarAccess, history: context.history)
         super.init()
 
-        let root = PopoverView(model: model, calendarAccess: context.calendarAccess, openSettings: { [weak self] tab in
-            self?.openSettings(tab)
-        })
+        let root = PopoverView(
+            model: model,
+            calendarAccess: context.calendarAccess,
+            openSettings: { [weak self] tab in self?.openSettings(tab) },
+            openHistory: { [weak self] in self?.openHistory() }
+        )
         let hosting = NSHostingController(rootView: root)
         // The popover follows the SwiftUI content's size and animates when it changes.
         hosting.sizingOptions = [.preferredContentSize]
@@ -62,6 +65,11 @@ final class PopoverController: NSObject, NSPopoverDelegate {
     }
 
     func show() {
+        // While the history window is open, it stands in for the popover.
+        if context.isHistoryOpen {
+            context.openHistory()
+            return
+        }
         context.calendarAccess.refreshStatus()
         NSApp.activate()
         if let button = anchorButton?(), let window = button.window, window.isVisible, window.frame.width > 0 {
@@ -136,6 +144,17 @@ final class PopoverController: NSObject, NSPopoverDelegate {
     private func openSettings(_ tab: SettingsTab?) {
         close()
         context.openSettings(tab)
+    }
+
+    private func openHistory() {
+        close()
+        context.openHistory()
+    }
+
+    /// "Repeat request" from the history window.
+    func restore(text: String?, images: [Data]) {
+        model.restore(text: text, images: images)
+        show()
     }
 
     /// An invisible 1-pt window at the top center of the screen with the pointer.
