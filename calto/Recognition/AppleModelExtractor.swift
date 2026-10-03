@@ -3,9 +3,16 @@ import Foundation
 import FoundationModels
 
 /// Extraction with Apple's on-device model. Guided generation fills these types directly, so no
-/// JSON parsing is involved; the result is mapped to the same `WireEvent`s the cloud providers return.
+/// JSON parsing is involved; the result is mapped to the same `ExtractionResponse` the cloud providers
+/// return. Properties are generated in order, so the facts from each source come first.
 @Generable
 nonisolated struct AppleExtraction {
+    @Guide(description: "Every fact, name, identifier, number and instruction in the text the user typed.")
+    var typedTextFacts: [String]
+    @Guide(description: "Every fact relevant to the events from the text read from images; empty without images.")
+    var imageFacts: [String]
+    @Guide(description: "Every URL in the typed text and the images, exactly as written.")
+    var links: [String]
     @Guide(description: "Every distinct calendar event found; empty if there is none.")
     var events: [AppleEvent]
 }
@@ -25,8 +32,12 @@ nonisolated struct AppleEvent {
     var location: String?
     @Guide(description: "The event's main link: online meeting, ticket, chat message or event page.")
     var url: String?
-    @Guide(description: "Every detail from the source not in the other fields, verbatim, including every URL.")
+    @Guide(description: "Every fact from the typed text and the images not in the other fields, verbatim. Never drop facts from the typed text.")
     var notes: String?
+    @Guide(description: "Every URL that belongs to this event.")
+    var links: [String]
+    @Guide(description: "Up to 3 key quotes from the chat or message, verbatim.")
+    var quotes: [String]
     @Guide(description: "Reminder offsets in minutes, only if reminders are explicitly requested.")
     var reminderMinutesBefore: [Int]?
     @Guide(description: "Short notes, in the user's language, about anything guessed or unclear.")
@@ -34,13 +45,13 @@ nonisolated struct AppleEvent {
 }
 
 enum AppleModelExtractor {
-    static func extract(prompt: ExtractionPrompt) async throws -> [WireEvent] {
+    static func extract(prompt: ExtractionPrompt) async throws -> ExtractionResponse {
         guard AppleModelAvailability.isAvailable else {
             throw RecognitionError.appleModelUnavailable(AppleModelAvailability.description)
         }
         let session = LanguageModelSession(instructions: prompt.system)
-        let response = try await session.respond(to: prompt.user, generating: AppleExtraction.self)
-        return response.content.events.map { event in
+        let content = try await session.respond(to: prompt.user, generating: AppleExtraction.self).content
+        let events = content.events.map { event in
             WireEvent(
                 title: event.title,
                 start: event.start,
@@ -50,9 +61,13 @@ enum AppleModelExtractor {
                 location: event.location,
                 url: event.url,
                 notes: event.notes,
+                links: event.links.map { WireLink(url: $0) },
+                quotes: event.quotes,
                 reminderMinutesBefore: event.reminderMinutesBefore,
                 ambiguities: event.ambiguities
             )
         }
+        let analysis = WireAnalysis(typedTextFacts: content.typedTextFacts, imageFacts: content.imageFacts, links: content.links)
+        return ExtractionResponse(analysis: analysis, events: events)
     }
 }

@@ -29,6 +29,12 @@ enum RecognitionStage: Equatable {
     case waitingForModel
 }
 
+/// Recognized events plus what is kept for the history.
+struct RecognitionResult {
+    var drafts: [EventDraft]
+    var analysis: WireAnalysis?
+}
+
 /// Sends the input to the chosen provider and turns the answer into event drafts.
 ///
 /// Recovery built in: if an endpoint rejects the output schema it retries in plain JSON mode, and if the
@@ -36,25 +42,56 @@ enum RecognitionStage: Equatable {
 final class RecognitionService {
     private let session = URLSession(configuration: .ephemeral)
     private var report: (RecognitionStage) -> Void = { _ in }
+    /// Text read from each image during this run, so no image is read twice.
+    private var recognizedText: [ImageAttachment.ID: String] = [:]
 
     func recognize(
         _ request: ExtractionRequest,
         settings: AppSettings,
         progress: @escaping (RecognitionStage) -> Void = { _ in }
-    ) async throws -> [EventDraft] {
+    ) async throws -> RecognitionResult {
         report = progress
-        defer { report = { _ in } }
-        let events = try await extractEvents(request, settings: settings)
+        recognizedText = [:]
+        defer {
+            report = { _ in }
+            recognizedText = [:]
+        }
+        // Links on the screenshots are read on this Mac in parallel, as a safety net for the notes.
+        let linksOnImages = Task { await self.linksOnImages(request.images) }
+        let response = try await extractEvents(request, settings: settings)
+        let extraLinks = LinkDetector.links(in: request.text ?? "") + (await linksOnImages.value) + (response.analysis?.links ?? [])
         let context = ResolutionContext(
             timeZone: request.timeZone,
             referenceDate: request.referenceDate,
             defaultDurationMinutes: settings.defaultDurationMinutes,
-            defaultAlarms: settings.defaultAlarms
+            defaultAlarms: settings.defaultAlarms,
+            extraLinks: extraLinks,
+            headings: NotesHeadings(links: String(localized: "🔗 Links:"), context: String(localized: "💬 Context:"))
         )
-        return EventResolver.resolve(events, context: context)
+        return RecognitionResult(drafts: EventResolver.resolve(response.events, context: context), analysis: response.analysis)
     }
 
-    private func extractEvents(_ request: ExtractionRequest, settings: AppSettings) async throws -> [WireEvent] {
+    /// Never fails: a screenshot whose text can't be read just contributes no links.
+    private func linksOnImages(_ images: [ImageAttachment]) async -> [String] {
+        var links: [String] = []
+        for image in images {
+            if let text = try? await text(on: image) {
+                links += LinkDetector.links(in: text)
+            }
+        }
+        return links
+    }
+
+    private func text(on image: ImageAttachment) async throws -> String {
+        if let cached = recognizedText[image.id] {
+            return cached
+        }
+        let text = try await TextRecognizer.recognizeText(in: image.data)
+        recognizedText[image.id] = text
+        return text
+    }
+
+    private func extractEvents(_ request: ExtractionRequest, settings: AppSettings) async throws -> ExtractionResponse {
         let provider = settings.provider
         switch provider {
         case .mock:
@@ -109,7 +146,7 @@ final class RecognitionService {
         configuration: ProviderConfiguration,
         images: [ImageAttachment],
         recognizedText: [String]
-    ) async throws -> [WireEvent] {
+    ) async throws -> ExtractionResponse {
         report(.waitingForModel)
         do {
             let prompt = PromptBuilder.build(for: request, recognizedText: recognizedText, imageCount: images.count)
@@ -125,7 +162,7 @@ final class RecognitionService {
         prompt: ExtractionPrompt,
         images: [ImageAttachment],
         mode: OutputMode
-    ) async throws -> [WireEvent] {
+    ) async throws -> ExtractionResponse {
         let urlRequest: URLRequest
         do {
             urlRequest = try ExtractionRequestBuilder.request(configuration, prompt: prompt, images: images, mode: mode)
@@ -149,15 +186,15 @@ final class RecognitionService {
         do {
             try ExtractionResponseParser.validate(status: http.statusCode, body: data, provider: configuration.provider, sentImages: !images.isEmpty)
             let text = try ExtractionResponseParser.outputText(from: data, provider: configuration.provider)
-            return try ExtractionResponseParser.events(fromOutput: text)
+            return try ExtractionResponseParser.response(fromOutput: text)
         } catch {
             throw RecognitionError.provider(error)
         }
     }
 
-    private func parse(_ output: String) throws -> [WireEvent] {
+    private func parse(_ output: String) throws -> ExtractionResponse {
         do {
-            return try ExtractionResponseParser.events(fromOutput: output)
+            return try ExtractionResponseParser.response(fromOutput: output)
         } catch {
             throw RecognitionError.provider(error)
         }
@@ -167,7 +204,11 @@ final class RecognitionService {
         guard !images.isEmpty else { return [] }
         report(.readingText)
         do {
-            return try await TextRecognizer.recognizeText(in: images)
+            var texts: [String] = []
+            for image in images {
+                texts.append(try await text(on: image))
+            }
+            return texts
         } catch {
             throw RecognitionError.textRecognition(error.localizedDescription)
         }

@@ -204,6 +204,6 @@ struct HistoryTests {
     func retention() {
         #expect(HistoryRetention.off.maxAge == 0)
         #expect(HistoryRetention.forever.maxAge == nil)
-        #expect(HistoryRetention.month.maxAge == 30 * 24 * 3600)
+        #expect(HistoryRetention.month.maxAge == TimeInterval(30 * 24 * 3600))
     }
 }

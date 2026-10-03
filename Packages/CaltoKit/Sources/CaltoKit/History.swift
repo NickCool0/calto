@@ -222,9 +222,8 @@ public actor HistoryStore {
     }
 
     /// Stores a thumbnail and returns its file name for `HistoryEntry.thumbnails`.
-    public func saveThumbnail(_ data: Data) throws -> String {
+    public func saveThumbnail(_ data: Data, named name: String = "\(UUID().uuidString).jpg") throws -> String {
         try FileManager.default.createDirectory(at: thumbnailsURL, withIntermediateDirectories: true)
-        let name = "\(UUID().uuidString).jpg"
         try data.write(to: thumbnailsURL.appending(path: name), options: .atomic)
         return name
     }

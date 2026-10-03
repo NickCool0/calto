@@ -12,19 +12,28 @@ struct ReviewSection: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button("Back", systemImage: "chevron.left") {
+                Button {
                     model.backToInput()
+                } label: {
+                    Image(systemName: "chevron.backward")
                 }
                 .buttonStyle(.borderless)
+                .keyboardShortcut("[", modifiers: .command)
+                .help(Text("Back"))
+                .accessibilityLabel(Text("Back"))
                 Spacer()
-                Text("Found: \(model.items.count)")
+                (model.isEditingSaved ? Text("Edit Events") : Text("Events: \(model.items.count)"))
                     .font(.headline)
                 Spacer()
                 // Balances the back button so the title stays centered.
-                Color.clear.frame(width: 60, height: 1)
+                Color.clear.frame(width: 20, height: 1)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
+
+            if !model.reviewReasons.isEmpty {
+                ReviewReasonsBanner(reasons: model.reviewReasons)
+            }
 
             Divider()
 
@@ -71,7 +80,9 @@ struct ReviewSection: View {
     }
 
     private var addTitle: String {
-        String(localized: "Add to Calendar (\(model.includedCount))")
+        model.isEditingSaved
+            ? String(localized: "Save Changes")
+            : String(localized: "Add to Calendar (\(model.includedCount))")
     }
 }
 
@@ -290,6 +301,60 @@ struct WarningList: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+        }
+    }
+}
+
+/// Why an automatic add stopped here: shown as text and a symbol, not by color alone.
+struct ReviewReasonsBanner: View {
+    let reasons: [ReviewReason]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label("Check before adding", systemImage: "hand.raised.fill")
+                .font(.callout.weight(.semibold))
+            ForEach(Array(reasons.prefix(3).enumerated()), id: \.offset) { _, reason in
+                Text(verbatim: "• \(reason.message)")
+                    .font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if reasons.count > 3 {
+                Text("And \(reasons.count - 3) more")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .foregroundStyle(.orange)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background {
+            Color.orange.opacity(0.1)
+        }
+    }
+}
+
+extension ReviewReason {
+    var message: String {
+        switch self {
+        case .noEvents:
+            String(localized: "No events were found.")
+        case .missingTitle(let index):
+            String(localized: "Event \(index + 1) has no title.")
+        case .unreadableDate(let title):
+            String(localized: "“\(title)”: the date couldn’t be read.")
+        case .issue(let title, let issue):
+            "“\(title)”: \(issue.message)"
+        case .ambiguity(let title, let note):
+            "“\(title)”: \(note)"
+        case .duplicate(let title, let existing):
+            String(localized: "“\(title)” may already be in your calendar as “\(existing)”.")
+        case .conflict(let title, let existing):
+            String(localized: "“\(title)” overlaps with “\(existing)”.")
+        case .reminderLimit(let title):
+            String(localized: "“\(title)”: this calendar keeps only one reminder.")
+        case .noCalendar:
+            String(localized: "Choose a calendar for the events.")
         }
     }
 }

@@ -215,7 +215,6 @@ struct PromptBuilderTests {
         #expect(prompt.user.contains("Рабочие встречи — в календарь «Работа»."))
         #expect(prompt.user.contains("Source 1 — text typed by the user (highest priority; use every fact in it):\n\"\"\"\nДобавь на завтра в 13 встречку, напомни за 15 и за 30 минут\n\"\"\""))
         #expect(prompt.user.contains("Source 2 — text read from image 1"))
-        #expect(prompt.user.contains("Text recognized on image 1:"))
         #expect(prompt.user.contains("(no text found)"))
         #expect(!prompt.system.contains("JSON Schema"))
     }

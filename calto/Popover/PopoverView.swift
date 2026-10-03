@@ -6,16 +6,17 @@ struct PopoverView: View {
     let model: PopoverModel
     let calendarAccess: CalendarAccess
     let openSettings: (SettingsTab?) -> Void
+    let openHistory: () -> Void
 
     var body: some View {
         Group {
             switch model.phase {
             case .input:
-                InputSection(model: model, input: model.input, calendarAccess: calendarAccess, openSettings: openSettings)
+                InputSection(model: model, input: model.input, calendarAccess: calendarAccess, openSettings: openSettings, openHistory: openHistory)
             case .review:
                 ReviewSection(model: model, calendarAccess: calendarAccess)
-            case .saved(let count, _):
-                SavedSection(model: model, count: count)
+            case .saved(let events):
+                SavedSection(model: model, events: events)
             }
         }
         .dropDestination(for: DroppedInput.self, isEnabled: true) { items, _ in
@@ -33,6 +34,7 @@ struct InputSection: View {
     @Bindable var input: InputModel
     let calendarAccess: CalendarAccess
     let openSettings: (SettingsTab?) -> Void
+    let openHistory: () -> Void
 
     private var settings: AppSettings { model.settings }
 
@@ -151,6 +153,8 @@ struct InputSection: View {
                 DefaultCalendarMenu(settings: settings, calendarAccess: calendarAccess)
             }
 
+            AddModeToggle(settings: settings)
+
             Button {
                 openSettings(.model)
             } label: {
@@ -173,7 +177,18 @@ struct InputSection: View {
                 }
                 .buttonStyle(.borderless)
                 .help(Text("Clear"))
+                .accessibilityLabel(Text("Clear"))
             }
+
+            Button {
+                openHistory()
+            } label: {
+                Image(systemName: "clock.arrow.circlepath")
+            }
+            .buttonStyle(.borderless)
+            .keyboardShortcut("y", modifiers: .command)
+            .help(Text("History (⌘Y)"))
+            .accessibilityLabel(Text("History"))
 
             Button {
                 openSettings(nil)
@@ -182,6 +197,7 @@ struct InputSection: View {
             }
             .buttonStyle(.borderless)
             .help(Text("Settings (⌘,)"))
+            .accessibilityLabel(Text("Settings"))
 
             if model.isRecognizing {
                 Button {
@@ -217,6 +233,26 @@ struct InputSection: View {
         guard provider.usesModelSelection else { return provider.shortName }
         let model = settings.currentModel
         return model.isEmpty ? provider.shortName : "\(provider.shortName) · \(model)"
+    }
+}
+
+/// Automatic or review mode, one click in the popover: the same setting as in Settings ▸ General.
+struct AddModeToggle: View {
+    @Bindable var settings: AppSettings
+
+    var body: some View {
+        Button {
+            settings.addMode = settings.addMode == .automatic ? .review : .automatic
+        } label: {
+            Image(systemName: settings.addMode == .automatic ? "bolt.fill" : "checklist")
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .buttonStyle(.borderless)
+        .foregroundStyle(settings.addMode == .automatic ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+        .help(settings.addMode == .automatic
+            ? Text("Adding automatically: clear events go straight to the calendar. Click to review every event first.")
+            : Text("Reviewing before adding. Click to add clear events automatically."))
+        .accessibilityLabel(settings.addMode == .automatic ? Text("Add automatically") : Text("Review before adding"))
     }
 }
 
@@ -349,30 +385,58 @@ struct ThumbnailStrip: View {
 
 struct SavedSection: View {
     let model: PopoverModel
-    let count: Int
+    let events: [SavedEvent]
 
     var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 40))
-                .foregroundStyle(.green)
-                .symbolEffect(.bounce, options: .nonRepeating)
-            Text("Events added: \(count)")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 12) {
+            Label {
+                Text("Added to Calendar: \(events.count)")
+                    .font(.headline)
+            } icon: {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                    .symbolEffect(.bounce, options: .nonRepeating)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(events, id: \.draft.id) { event in
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Image(nsImage: CalendarSwatch.image(for: model.calendarAccess.calendar(withID: event.calendarID)?.color ?? .gray))
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(verbatim: event.draft.title)
+                                .lineLimit(2)
+                            Text(verbatim: "\(HistoryEventView.timeText(event.draft)) · \(event.calendarTitle)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.quinary, in: .rect(cornerRadius: 10))
+
             HStack {
                 Button("Undo", systemImage: "arrow.uturn.backward") {
                     model.undo()
                 }
+                .keyboardShortcut("z", modifiers: .command)
+                .help(Text("Remove these events from the calendar (⌘Z)"))
+                Button("Edit", systemImage: "pencil") {
+                    model.editSaved()
+                }
                 Button("Open Calendar", systemImage: "calendar") {
                     model.openCalendarApp()
                 }
-                Button("New", systemImage: "plus") {
+                Spacer()
+                Button("New") {
                     model.startOver()
                 }
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(24)
+        .padding(16)
         .frame(width: 420)
     }
 }

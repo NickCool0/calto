@@ -10,6 +10,7 @@ struct GeneralSettingsPane: View {
     @State private var loginItemNeedsApproval = SMAppService.mainApp.status == .requiresApproval
     @State private var loginItemError: String?
     @State private var language = AppLanguage.selected
+    @State private var confirmingClearHistory = false
 
     private var calendarAccess: CalendarAccess { context.calendarAccess }
 
@@ -64,6 +65,17 @@ struct GeneralSettingsPane: View {
                 }
             }
 
+            Section("Adding events") {
+                Picker("Mode", selection: $settings.addMode) {
+                    Text("Review before adding").tag(AddMode.review)
+                    Text("Add automatically").tag(AddMode.automatic)
+                }
+                .pickerStyle(.radioGroup)
+                Text("Automatic mode adds clear events right away, with Undo. If anything is unclear — the date, a conflict, a likely duplicate — the events are shown for review anyway. You can also switch the mode with the button at the bottom of the popover.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("New events") {
                 Picker("Calendar", selection: $settings.defaultCalendarID) {
                     Text("Calendar app’s default").tag(String?.none)
@@ -105,6 +117,36 @@ struct GeneralSettingsPane: View {
                 Text("You’ll be able to change the shortcut in a later version.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            Section("History") {
+                Picker("Keep history", selection: $settings.historyRetention) {
+                    Text("Off").tag(HistoryRetention.off)
+                    Text("7 days").tag(HistoryRetention.week)
+                    Text("30 days").tag(HistoryRetention.month)
+                    Text("1 year").tag(HistoryRetention.year)
+                    Text("Forever").tag(HistoryRetention.forever)
+                }
+                .onChange(of: settings.historyRetention) { _, _ in
+                    context.history.applyRetention()
+                }
+                HStack {
+                    Text("Your requests, small thumbnails of screenshots and the events created are stored only on this Mac.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Clear History…") {
+                        confirmingClearHistory = true
+                    }
+                    .disabled(context.history.entries.isEmpty)
+                }
+            }
+            .confirmationDialog("Clear the whole history?", isPresented: $confirmingClearHistory) {
+                Button("Clear History", role: .destructive) {
+                    context.history.deleteAll()
+                }
+            } message: {
+                Text("Events in your calendars are not affected.")
             }
 
             Section("System") {
