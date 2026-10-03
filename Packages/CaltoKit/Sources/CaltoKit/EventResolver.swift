@@ -10,12 +10,26 @@ public struct ResolutionContext: Sendable, Hashable {
     public var defaultDurationMinutes: Int
     /// Used when the source mentions no reminders.
     public var defaultAlarms: [EventAlarm]
+    /// Links found in the user's sources (typed text, text on screenshots, the model's own analysis);
+    /// any the model didn't attach to an event are added to every event's notes.
+    public var extraLinks: [String]
+    /// Section titles for the composed notes.
+    public var headings: NotesHeadings
 
-    public init(timeZone: TimeZone, referenceDate: Date, defaultDurationMinutes: Int = 60, defaultAlarms: [EventAlarm] = []) {
+    public init(
+        timeZone: TimeZone,
+        referenceDate: Date,
+        defaultDurationMinutes: Int = 60,
+        defaultAlarms: [EventAlarm] = [],
+        extraLinks: [String] = [],
+        headings: NotesHeadings = .english
+    ) {
         self.timeZone = timeZone
         self.referenceDate = referenceDate
         self.defaultDurationMinutes = defaultDurationMinutes
         self.defaultAlarms = defaultAlarms
+        self.extraLinks = extraLinks
+        self.headings = headings
     }
 }
 
@@ -24,10 +38,15 @@ public struct ResolutionContext: Sendable, Hashable {
 /// deterministically, so date handling is testable without a model.
 public enum EventResolver {
     public static func resolve(_ events: [WireEvent], context: ResolutionContext) -> [EventDraft] {
-        events.map { resolve($0, context: context) }
+        let notes = NotesComposer.compose(events, extraLinks: context.extraLinks, headings: context.headings)
+        return zip(events, notes).map { resolve($0, notes: $1, context: context) }
     }
 
     public static func resolve(_ wire: WireEvent, context: ResolutionContext) -> EventDraft {
+        resolve([wire], context: context)[0]
+    }
+
+    static func resolve(_ wire: WireEvent, notes: String?, context: ResolutionContext) -> EventDraft {
         var issues: [ResolutionIssue] = []
 
         var zone = context.timeZone
@@ -116,8 +135,8 @@ public enum EventResolver {
             isAllDay: isAllDay,
             timeZone: isAllDay ? nil : explicitZone,
             location: nonEmpty(wire.location),
-            url: link(from: wire.url),
-            notes: nonEmpty(wire.notes),
+            url: link(from: wire.url) ?? NotesComposer.links(of: wire).first.flatMap { URL(string: $0.url) },
+            notes: notes,
             alarms: alarms,
             alarmsAreDefault: alarmsAreDefault,
             recurrence: recurrence,

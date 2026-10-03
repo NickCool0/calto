@@ -257,19 +257,23 @@ public enum ExtractionResponseParser {
         }
     }
 
-    /// Decodes the events, tolerating code fences, surrounding prose and a bare array.
-    public static func events(fromOutput text: String) throws(ProviderError) -> [WireEvent] {
+    /// Decodes the answer, tolerating code fences, surrounding prose and a bare array of events.
+    public static func response(fromOutput text: String) throws(ProviderError) -> ExtractionResponse {
         let candidates = [text, stripCodeFence(text), outermostJSON(in: text)].compactMap { $0 }
         for candidate in candidates {
             let data = Data(candidate.utf8)
             if let response = try? JSONDecoder().decode(ExtractionResponse.self, from: data) {
-                return response.events
+                return response
             }
             if let events = try? JSONDecoder().decode([WireEvent].self, from: data) {
-                return events
+                return ExtractionResponse(events: events)
             }
         }
         throw .malformedOutput
+    }
+
+    public static func events(fromOutput text: String) throws(ProviderError) -> [WireEvent] {
+        try response(fromOutput: text).events
     }
 
     static func stripCodeFence(_ text: String) -> String? {

@@ -15,6 +15,9 @@ final class AppSettings {
         static let defaultReminder = "defaultReminderMinutes"
         static let defaultDuration = "defaultDurationMinutes"
         static let alwaysRecognizeOnDevice = "alwaysRecognizeTextOnDevice"
+        static let providersWithKeys = "providersWithKeys"
+        static let addMode = "addMode"
+        static let historyRetention = "historyRetention"
     }
 
     /// Stored in place of "no reminder" (UserDefaults can't hold nil in an Int).
@@ -60,12 +63,26 @@ final class AppSettings {
         didSet { defaults.set(modelsByProvider, forKey: Key.models) }
     }
 
-    /// Providers with a stored key, known without reading (and decrypting) the key itself.
-    private(set) var providersWithKeys: Set<LLMProvider>
+    /// Review every result first, or add clear ones right away.
+    var addMode: AddMode {
+        didSet { defaults.set(addMode.rawValue, forKey: Key.addMode) }
+    }
 
-    /// Keys already read from the Keychain in this run. Reading a key can make macOS ask for the
-    /// Keychain password (once after every update of an ad-hoc signed app), so it happens once per launch.
-    @ObservationIgnored private var cachedKeys: [LLMProvider: String] = [:]
+    var historyRetention: HistoryRetention {
+        didSet { defaults.set(historyRetention.rawValue, forKey: Key.historyRetention) }
+    }
+
+    /// Providers with a stored key. Kept in the defaults (it isn't secret), so the Keychain isn't touched
+    /// at launch.
+    private(set) var providersWithKeys: Set<LLMProvider> {
+        didSet { defaults.set(providersWithKeys.map(\.rawValue).sorted(), forKey: Key.providersWithKeys) }
+    }
+
+    /// All keys, read from the Keychain once per launch. Reading can make macOS ask for the Keychain
+    /// password (once after every update of an ad-hoc signed app).
+    @ObservationIgnored private var loadedKeys: [String: String]?
+    /// The read in progress: concurrent callers wait for it instead of each asking for the password.
+    @ObservationIgnored private var keysLoad: Task<[String: String], any Error>?
 
     /// Suggested standing instructions for new users, in the interface language.
     static var defaultCustomPrompt: String {
@@ -92,7 +109,17 @@ final class AppSettings {
         defaultReminderMinutes = reminder == Self.noReminder ? nil : reminder
         defaultDurationMinutes = defaults.object(forKey: Key.defaultDuration) as? Int ?? 60
         alwaysRecognizeTextOnDevice = defaults.bool(forKey: Key.alwaysRecognizeOnDevice)
-        providersWithKeys = Set(LLMProvider.allCases.filter { $0.acceptsAPIKey && KeychainStore.contains(account: $0.rawValue) })
+        addMode = defaults.string(forKey: Key.addMode).flatMap(AddMode.init(rawValue:)) ?? .review
+        historyRetention = defaults.string(forKey: Key.historyRetention).flatMap(HistoryRetention.init(rawValue:)) ?? .month
+        if let stored = defaults.stringArray(forKey: Key.providersWithKeys) {
+            providersWithKeys = Set(stored.compactMap(LLMProvider.init(rawValue:)))
+        } else {
+            // First launch of this version: find the keys saved by an older one (attributes only).
+            providersWithKeys = Set(LLMProvider.allCases.filter {
+                $0.acceptsAPIKey && (KeychainStore.contains(account: $0.rawValue) || KeychainStore.contains(account: KeychainStore.allKeysAccount))
+            })
+            defaults.set(providersWithKeys.map(\.rawValue).sorted(), forKey: Key.providersWithKeys)
+        }
     }
 
     // MARK: Models
@@ -121,36 +148,49 @@ final class AppSettings {
 
     /// Whether using the provider's key may show the Keychain password prompt.
     func mayPromptForAPIKey(_ provider: LLMProvider) -> Bool {
-        hasAPIKey(for: provider) && cachedKeys[provider] == nil
+        hasAPIKey(for: provider) && loadedKeys == nil
     }
 
-    /// The provider's key: from memory, or read from the Keychain once per launch. The read runs off
-    /// the main thread, so the UI stays responsive while macOS shows its password prompt.
+    /// The provider's key, from memory after the first read of the launch.
     func apiKey(for provider: LLMProvider) async throws -> String? {
-        if let cached = cachedKeys[provider] {
-            return cached
-        }
         guard hasAPIKey(for: provider) else { return nil }
-        let account = provider.rawValue
-        let key = try await Task.detached(priority: .userInitiated) {
-            try KeychainStore.read(account: account)
-        }.value
-        cachedKeys[provider] = key
-        return key
+        return try await allKeys()[provider.rawValue]
     }
 
     /// Saves the key, or removes it when `key` is blank.
-    func setAPIKey(_ key: String, for provider: LLMProvider) throws {
+    func setAPIKey(_ key: String, for provider: LLMProvider) async throws {
         let key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        var keys = providersWithKeys.isEmpty ? (loadedKeys ?? [:]) : try await allKeys()
+        keys[provider.rawValue] = key.isEmpty ? nil : key
+        let updated = keys
+        try await Task.detached(priority: .userInitiated) {
+            try KeychainStore.saveAllKeys(updated)
+        }.value
+        loadedKeys = updated
         if key.isEmpty {
-            try KeychainStore.delete(account: provider.rawValue)
             providersWithKeys.remove(provider)
-            cachedKeys[provider] = nil
         } else {
-            try KeychainStore.save(key, account: provider.rawValue)
             providersWithKeys.insert(provider)
-            cachedKeys[provider] = key
         }
+    }
+
+    /// Reads all keys once, off the main thread (the UI stays responsive while macOS shows its prompt).
+    private func allKeys() async throws -> [String: String] {
+        if let loadedKeys {
+            return loadedKeys
+        }
+        if let keysLoad {
+            return try await keysLoad.value
+        }
+        let legacy = LLMProvider.allCases.filter(\.acceptsAPIKey).map(\.rawValue)
+        let load = Task.detached(priority: .userInitiated) {
+            try KeychainStore.loadAllKeys(legacyAccounts: legacy)
+        }
+        keysLoad = load
+        defer { keysLoad = nil }
+        let keys = try await load.value
+        loadedKeys = keys
+        return keys
     }
 
     // MARK: Readiness

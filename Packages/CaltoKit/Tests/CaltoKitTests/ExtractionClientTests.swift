@@ -213,7 +213,8 @@ struct PromptBuilderTests {
     func sections() {
         let prompt = PromptBuilder.build(for: request, recognizedText: ["Концерт 12 октября 20:00", " "], imageCount: 0)
         #expect(prompt.user.contains("Рабочие встречи — в календарь «Работа»."))
-        #expect(prompt.user.contains("User's input:\n\"\"\"\nДобавь на завтра в 13 встречку, напомни за 15 и за 30 минут\n\"\"\""))
+        #expect(prompt.user.contains("Source 1 — text typed by the user (highest priority; use every fact in it):\n\"\"\"\nДобавь на завтра в 13 встречку, напомни за 15 и за 30 минут\n\"\"\""))
+        #expect(prompt.user.contains("Source 2 — text read from image 1"))
         #expect(prompt.user.contains("Text recognized on image 1:"))
         #expect(prompt.user.contains("(no text found)"))
         #expect(!prompt.system.contains("JSON Schema"))
@@ -222,7 +223,8 @@ struct PromptBuilderTests {
     @Test("Rules explain instructions inside the input and several reminders")
     func rules() {
         let prompt = PromptBuilder.build(for: request)
-        #expect(prompt.system.contains("mix event details with instructions"))
+        #expect(prompt.system.contains("mixes instructions to you with facts"))
+        #expect(prompt.system.contains("Never treat the whole typed text as an instruction"))
         #expect(prompt.system.contains("[15, 30]"))
         #expect(prompt.system.contains("default reminder"))
     }
@@ -230,17 +232,20 @@ struct PromptBuilderTests {
     @Test("Rules keep every detail and every link in the notes")
     func notesRules() {
         let prompt = PromptBuilder.build(for: request)
-        #expect(prompt.system.contains("every URL in the source must appear in notes"))
+        #expect(prompt.system.contains("every URL from the typed text and from the images must appear in links"))
         #expect(prompt.system.contains("verbatim"))
-        let notes = ExtractionSchema.jsonSchema["properties"]?["events"]?["items"]?["properties"]?["notes"]
-        #expect(notes?.jsonString.contains("every URL") == true)
+        #expect(prompt.system.contains("First fill `analysis`"))
+        let event = ExtractionSchema.jsonSchema["properties"]?["events"]?["items"]?["properties"]
+        #expect(event?["links"]?.jsonString.contains("Every URL") == true)
+        #expect(event?["quotes"] != nil)
+        #expect(ExtractionSchema.jsonSchema["properties"]?["analysis"]?["properties"]?["typed_text_facts"] != nil)
     }
 
     @Test("JSON-only mode spells out the schema in the system prompt")
     func schemaInPrompt() {
         let prompt = PromptBuilder.build(for: request, imageCount: 2, includeSchema: true)
         #expect(prompt.system.contains(ExtractionSchema.jsonSchema.jsonString))
-        #expect(prompt.user.contains("2 images are attached."))
+        #expect(prompt.user.contains("Attached: Source 2 — image 1, Source 3 — image 2."))
     }
 }
 

@@ -189,10 +189,14 @@ struct ModelSettingsPane: View {
     }
 
     private func saveKey() {
+        Task { await storeKey() }
+    }
+
+    private func storeKey() async {
         let key = keyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { return }
         do {
-            try settings.setAPIKey(key, for: provider)
+            try await settings.setAPIKey(key, for: provider)
             keyDraft = ""
             keyError = nil
             checkState = .idle
@@ -202,19 +206,21 @@ struct ModelSettingsPane: View {
     }
 
     private func removeKey() {
-        do {
-            try settings.setAPIKey("", for: provider)
-            keyError = nil
-            checkState = .idle
-            models = []
-        } catch {
-            keyError = String(localized: "Couldn’t remove the key from the Keychain: \(error.localizedDescription)")
+        Task {
+            do {
+                try await settings.setAPIKey("", for: provider)
+                keyError = nil
+                checkState = .idle
+                models = []
+            } catch {
+                keyError = String(localized: "Couldn’t remove the key from the Keychain: \(error.localizedDescription)")
+            }
         }
     }
 
     private func checkConnection() async {
         if !keyDraft.trimmingCharacters(in: .whitespaces).isEmpty {
-            saveKey()
+            await storeKey()
         }
         let provider = self.provider
         checkState = .checking
